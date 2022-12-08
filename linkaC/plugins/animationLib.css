@@ -25,6 +25,10 @@
 
 
 #_window{
+	position: fixed;
+	z-index: 9999;
+	pointer-events: none; /* 鼠标穿透 */
+
 	transition: border-width 1000ms cubic-bezier(0.25, 0.1, 0, 1.1);
 	border-style: solid;
 	border-width: 0 0;

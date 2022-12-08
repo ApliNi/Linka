@@ -163,28 +163,38 @@ setInterval(function(){
 			}
 		};
 
-		// 处理网络io队列
+		// 处理当前玩家的网络io队列
+		// 所有数据都堆在网络队列中, 根据数据的标签判断发送给谁, 比如 'player_id', '_ALL_'
 		_io();
 		function _io(){
 			let $arr = [];
 			// 检查网络队列中是否有正在遍历的玩家的id
-			if(typeof $t.queue_net[e] === 'object'){
+			if($t.queue_net[e] !== undefined){ // 如果网络队列中有这个玩家id
 				//存在, 遍历这个玩家的数据表
 				for(let key in $t.queue_net[e]){
 					// 将数据push到这个玩家的临时数组
 					$arr.push($t.queue_net[e][key]);
 				}
 			}
-			// 检查是否有_ALL_ (发送给所有玩家)
-			if(typeof $t.queue_net['_ALL_'] === 'object'){
+			// 检查是否有 _ALL_ (发送给所有玩家)
+			if($t.queue_net['_ALL_'] !== undefined){
 				for(let key in $t.queue_net['_ALL_']){
 					$arr.push($t.queue_net['_ALL_'][key]);
+				}
+			}
+			// 排除玩家 _!ALL_
+			if($t.queue_net['_!ALL_'] !== undefined){
+				for(let key in $t.queue_net['_!ALL_']){
+					// 如果不是排除当前玩家
+					if($t.queue_net['_!ALL_'][key].id !== e){
+						$arr.push($t.queue_net['_!ALL_'][key]);
+					}
 				}
 			}
 			// 将合并后的数据发送给目标玩家
 			if($arr.length > 0){
 				// 判断玩家是否存在
-				if(typeof $c.entity[e] === 'object'){
+				if($c.entity[e] !== undefined){
 					// 发送数据
 					$c.entity[e].ws.send(JSON.stringify({
 						time: $funcStartTime,
@@ -194,14 +204,14 @@ setInterval(function(){
 					$c.entity[e].time.lastSend = $funcStartTime;
 				}
 			}
-			//console.log(JSON.stringify($arr));
+			// console.log(JSON.stringify($t.queue_net));
 		};
-
 
 	});
 
 	// 清空网络io队列
 	$t.queue_net = {};
+
 
 	// 循环结束, 对比时间戳, 得到mspt
 	$c.system.mspt = Date.now() - $funcStartTime;
@@ -303,14 +313,15 @@ function main($tp, ws, $clientTime){
 		});
 
 		// 检查坐标的数字范围
-		if($tp.data.place[3] < 0
-		|| $tp.data.place[3] > 360
-		|| $tp.data.place[4] < 0
-		|| $tp.data.place[4] > 360
+		if($tp.data.place[3] < -180
+		|| $tp.data.place[3] > 180
+		// || $tp.data.place[4] < -180
+		// || $tp.data.place[4] > 180
 		) return false;
 
 		// // 从上次同步坐标到现在, 玩家最多能走多远. 判断玩家是否超过这个距离
-		// let $_maxRange = ($funcStartTime - $c.entity[$tp.id].time.place) / 1000 * (1000 / 20 * 10) + 10; // +10 容错
+		// // let $_maxRange = ($funcStartTime - $c.entity[$tp.id].time.place) / 1000 * (1000 / 13 * 10) + 2; // +2 容错
+		// let $_maxRange = ($funcStartTime - $c.entity[$tp.id].time.place) / 30 * (13 + 2); // +2 容错
 		// //console.log($_maxRange, Math.abs($tp.data.place[0] - $c.entity[$tp.id].place[0]), Math.abs($tp.data.place[1] - $c.entity[$tp.id].place[1]), Math.abs($tp.data.place[2] - $c.entity[$tp.id].place[2]));
 		// if(Math.abs($tp.data.place[0] - $c.entity[$tp.id].place[0]) > $_maxRange
 		// || Math.abs($tp.data.place[1] - $c.entity[$tp.id].place[1]) > $_maxRange
@@ -323,7 +334,7 @@ function main($tp, ws, $clientTime){
 		$c.entity[$tp.id].time.place = $funcStartTime;
 
 		// 广播玩家位置
-		lib.to_queue_net('_ALL_', 'playerMove', {
+		lib.to_queue_net('_!ALL_', 'playerMove', {
 			type: 'playerMove',
 			id: $tp.id,
 			place: $c.entity[$tp.id].place,

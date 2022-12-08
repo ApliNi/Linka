@@ -1,0 +1,27 @@
+{
+	"name": "LinkaC - PWA",
+	"short_name": "LinkaC",
+	"display": "standalone",
+	"id": "/Array/_1/",
+	"start_url": "/Array/_1/",
+	"theme_color": "#202124",
+	"background_color": "#0d1118",
+	"icons": [
+		{
+			"src": "https://ipacel.cc/plugins/img/icon_256_big_b.png",
+			"sizes": "256x256",
+			"type": "image/png"
+		},
+		{
+			"src": "icon_512_big_b.png",
+			"sizes": "512x512",
+			"type": "image/png"
+		},
+		{
+			"src": "icon_512_big_b.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any maskable"
+		}
+	]
+}

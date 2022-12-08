@@ -3,11 +3,15 @@
 <html lang="zh-cmn-Hans">
 <head>
 	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>[IpacEL]/ linkaC.测试</title>
+	<meta name="viewport" content="width=device-width, initial-scale=0.7, user-scalable=0">
+	<title>[IpacEL]/ LinkaC.测试</title>
 	<link rel="stylesheet" href="/plugins/cake.css?v=1.96">
 	<link rel="stylesheet" href="plugins/ui.css?v=0.1.2">
 	<link rel="stylesheet" href="plugins/animationLib.css?v=0.1.2">
+
+	<link rel="manifest" href="plugins/manifest.json">
+	<meta name="theme-color" content="#202124">
+	<link rel="apple-touch-icon" href="plugins/icon_512_big_b.png" sizes="512x512">
 </head>
 <body>
 	<div id="main">
@@ -30,8 +34,14 @@
 					<p>[T]: 打开聊天界面</p>
 					<p>[Tab]: 显示实体列表</p>
 					<p>[ESC]: 关闭当前组件</p>
-					<p>[Enter][Space]: 攻击/确认</p>
-					<p>[F3]: 显示调试信息</p>
+					<p>[Enter][Space]: 确认/选中</p>
+					<p>[F3]: 显示调试信息(PC)</p>
+
+					<br />
+					<div>
+						<p id="ccc"></p>
+						<p id="cccc" style="position: absolute;left: 27px; top: 464px;">[A]</p>
+					</div>
 				</div>
 
 				<div>
@@ -56,6 +66,7 @@
 
 							<br />
 							<p>计划队列: </p>
+							<p> - a更好的聊天系统</p>
 							<p>游戏的3个图层: 操作界面层(操作界面包含3大件: 特殊交互, 基础交互, 数据显示) > 实体层 > 场景层(场景层中的场景模块可以在其他图层之上, 也可以有自己的缩放中心以及移动跟随步长乘数. 场景以区块为单位进行加载, 编写场景时需要定义场景加载范围, 当玩家的可视范围接触到场景加载范围则动态加载到客户端); 客户端3个循环: 用户操作循环 < 主体运算循环 < 网络通讯循环; 数据的3个类型: 运算缓存数据, 主体缓存数据, 用户配置数据. (运算缓存有主体缓存数据的索引(用于在循环中快速查找大量数据), 各种临时数据(用于框架的功能实现), 性能分析数据(收集数据以便优化), 脚本指针和临时数据(脚本解析器产生的数据), 场景缓存(或预加载)). 饼画的太大了, 能实现一半都算不错的了..</p>
 							<p>添加"默认配置", 每个功能有自己的默认配置, 脚本会覆盖在默认配置上然后交给功能实现程序. 那么脚本就会有一个编译过程, 我不打算再写一个编译器, 大概会直接在客户端临时编译. 然后从性能分析数据中得到常用脚本并编译后覆盖在客户端缓存的原始脚本上?? (好像想到了什么熟悉的东西</p>
 							<p> - a添加指令系统</p>
@@ -65,10 +76,17 @@
 							<p> - s数据包实体剔除: 只加载可视范围内的实体: 需要前置"基于sqlite的存储和索引"</p>
 							<p> - s^分库, 提高io性能</p>
 							<p> - s所有可扩展的数据基于sqlite存储和索引: 日志存储在内存: 通过提交事务保存数据</p>
-							<p> - c更好的运动数据发送, </p>
+							<p> - c摇杆控制移速</p>
 
 							<br />
 							<p>v0.2更新日志: </p>
+							<p> - c为陀螺仪控制添加自定义原点功能</p>
+							<p> - c更好的键盘操作动态移速</p>
+							<p> - c添加移动端传感器支持</p>
+							<p> - c添加"速度倍率", 用于控制移动速度</p>
+							<p> - s服务器发包支持(排除玩家), 用于节省流量</p>
+							<p> - c添加移动端支持, 添加url参数`isPE = true|false`. PC端默认false, 移动端为true</p>
+							<p> - i遇到了点问题, 过几天再回来. Edit: 2022年12月8日: 开发者回来啦! 最近更新可能有点慢</p>
 							<p> - c尝试优化玩家移动, 在短时间内动态增加步长到最大值</p>
 							<p> - a再次重写NPC, 提供更多扩展性, 优化代码</p>
 							<p> - a允许NPC的一个程序组同时监听多个事件</p>
@@ -112,6 +130,7 @@
 							<p> - a简单的实体索引</p>
 							<p> - a将玩家归类为实体, 通过实体标签区分 #NBT</p>
 							<p> - a实体自适应扩展数据</p>
+							<p> - a添加url参数`name=名称`. 默认为'未命名玩家'</p>
 							<p> - a软件重写, 已实现v0.1的所有功能</p>
 
 							<br />
@@ -165,12 +184,15 @@
 		</div>
 
 		<!-- 聊天组件 -->
-		<div id="message">
+		<div id="message" class="">
 			<!-- 聊天内容框 -->
-			<div id="message-list" class=""></div>
+			<div id="message-list"></div>
 
 			<!-- 输入框 -->
-			<input id="message-input" style="display: none;" maxlength="256" onkeypress="if(event.keyCode===13){main_send({type: 'sendMessage'}); openMessageDom()}"/>
+			<div class="message_input_bc">
+				<button class="btn" onclick="main_send({type: 'sendMessage'}); openMessageDom()">发送</button>
+			</div>
+			<input id="message-input" maxlength="256" onkeypress="if(event.keyCode===13){main_send({type: 'sendMessage'}); openMessageDom()}" />
 		</div>
 
 		<!-- 玩家选择消息 -->
@@ -179,8 +201,26 @@
 
 		<!-- 窗口动效层 -->
 		<div id="_window"></div>
+
+		<!-- 插件dom默认位置 -->
+		<div id="_plugins" class="plugins">
+
+		</div>
 	</div>
 </body>
+	<!-- 功能库 -->
 	<script type="text/javascript" src="plugins/lib.js?v=0.1.2"></script>
+
+	<!-- 主程序 -->
 	<script type="text/javascript" src="plugins/ui.js?v=0.1.2"></script>
+
+	<!-- 事件 -->
+	<script type="text/javascript" src="plugins/event.js?v=0.1.2"></script>
+
+	<!-- 插件.移动端操作 -->
+	<!-- <link rel="stylesheet" href="plugins/plugins/pe.css?v=0.1.2"> -->
+	<script type="text/javascript" src="plugins/plugins/pe.js?v=0.1.2"></script>
+	<!-- 传感器 -->
+	<script type="text/javascript" src="plugins/plugins/sensor.js?v=0.1.2"></script>
+	
 </html>

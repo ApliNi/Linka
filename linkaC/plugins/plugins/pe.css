@@ -1,0 +1,128 @@
+/* 消息框位置 */
+#message{
+	top: 0;
+	bottom: auto;
+}
+#message > #message-list{
+	position: initial;
+	width: min(40%, 700px);
+	margin-bottom: 0;
+}
+#message.-open > #message-list{
+	width: 100%;
+}
+#message > input{
+	padding-top: 4px;
+}
+
+/* 按键默认样式 */
+.btn{
+	user-select: none;
+}
+.plugins .btn{
+	white-space: nowrap;
+	width: 4rem;
+	height: 4rem;
+	margin: 7px;
+	background-color: var(--t);
+	opacity: .7;
+}
+
+
+
+/* 左侧方向键 */
+.plugins .WASD{
+	position: fixed;
+	bottom: 47px;
+	left: 47px;
+	margin: 0px;
+	width: 128px;
+	height: 128px;
+	background-color: var(--t);
+	opacity: .7;
+	border-radius: 100%;
+}
+/* 底部按键 */
+.plugins .bottom_box{
+	position: fixed;
+	/* top: 27px; */
+	bottom: 0;
+	padding: 10px min(200px, 30%);
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+.plugins .bottom_box div .btn{
+	width: 64px;
+	height: 32px;
+}
+.plugins .bottom_box > div{
+	display: flex;
+	flex-direction: row;
+}
+/* 确认键按键 */
+.plugins .enter_box{
+	position: fixed;
+	bottom: 72px;
+	right: 72px;
+}
+.plugins .enter_box div .btn{
+	width: 64px;
+	height: 64px;
+}
+.plugins .enter_box div .btn::before{
+	content: '';
+	position: absolute;
+	margin: -5px -10px;
+	width: 64px;
+	height: 64px;
+	background-color: var(--t);
+	transform: rotate(45deg);
+}
+.plugins .enter_box div .btn::after{
+	content: 'Enter';
+	position: absolute;
+	margin: 16px 3px;
+}
+/* 右侧按键 */
+.plugins .right_box{
+	position: fixed;
+	right: 10px;
+	top: 64px;
+}
+.plugins .right_box div{
+	display: flex;
+	flex-direction: row-reverse;
+	align-items: center;
+}
+.plugins .right_box div .btn{
+	width: 64px;
+	height: 32px;
+}
+.plugins .right_box div .btn.-open{
+	background-color: var(--c);
+}
+.plugins .right_box div .btn.-open.-pok{ /* 橙色按钮 */
+	background-color: var(--e);
+}
+/* 传感器重置原点按钮 */
+.plugins .right_box div .btn.side{
+	transition: all .2s ease;
+	margin-right: -40px;
+	opacity: 0;
+	width: 32px;
+	pointer-events: none;
+}
+.plugins .right_box div .btn.-open.-pok + .btn.side{
+	margin-right: 7px;
+	opacity: 1;
+	pointer-events: auto;
+}
+/* 说明文本 */
+.plugins .right_box div .text{
+	opacity: 0;
+}
+.plugins .right_box div .btn.side:active + .text{
+	opacity: 1;
+}

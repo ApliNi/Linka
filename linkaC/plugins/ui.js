@@ -16,7 +16,7 @@ let $c = {
 		player_move_start: 0, // ui循环中, 玩家开始移动前{ui_mspt}毫秒的时间
 	},
 	lastConnectionTime: 0, // 与服务器通讯的时间
-	player: {
+	player: { // 用户数据
 		id: '',
 		key: '',
 		name: (fromUrl('name') === '')? '未命名玩家' : fromUrl('name'),
@@ -24,15 +24,16 @@ let $c = {
 	entity: {},	// 实体数据
 	index_entity: {},	// 实体索引
 	loop: { // 循环指标 and 循环本体
-		_network_time: 62,
-		_network: null,
+		_net_time: 62,
+		_net: null,
 
 		_tps_time: 62,
 		_tps: null,
 
-		_player_time: 30,
-		_player: null,
+		_ui_time: 30,
+		_ui: null,
 	},
+	plugins: {}, // 插件数据, 插件自己填充
 };
 
 // 全局缓存
@@ -41,7 +42,7 @@ let $t = {
 	WASD: {	// 玩家移动处理队列
 		disable: false,	// 移动被禁用
 		enable: false,	// 当前是否存在移动事件
-		isKeyboard: false,	// 是不是键盘操作
+		isKeyboard: true,	// 是不是键盘操作
 		keyboard: {	// 键盘的4个按键
 			KeyW: false,
 			KeyA: false,
@@ -50,22 +51,22 @@ let $t = {
 		},
 		keyAngle: {	// 固定角度名: 角度
 			KeyW: 0,
-			KeyWKeyA: 315,
+			KeyWKeyA: -45,
 			KeyWKeyAKeyD: 0,
 
-			KeyA: 270,
-			KeyAKeyS: 225,
-			KeyWKeyAKeyS: 270,
+			KeyA: -90,
+			KeyAKeyS: -135,
+			KeyWKeyAKeyS: -90,
 
-			KeyS: 180,
+			KeyS: -180,
 			KeySKeyD: 135,
-			KeyAKeySKeyD: 180,
+			KeyAKeySKeyD: -180,
 
 			KeyD: 90,
 			KeyWKeyD: 45,
 			KeyWKeySKeyD: 90,
 		},
-		angle: [0, 0],	// 偏航角, 俯仰角
+		angle: [0, 0, 0],	// 偏航角, 俯仰角, 速度倍率(0~1)
 		stepSize: 13,	// 移动步长
 	},
 	queue_entity: {	// 实体相关事件
@@ -106,62 +107,107 @@ let $d = {
 	playerDecision: 0,
 };
 
-// ws
-let ws = null;
 
 // 初始化背景层坐标, 通过主配置
 update_place_to_background();
 
-// ws 初始化
-start_ws();
-function start_ws(){
-	console.log('[/] ws.开始连接...');
-	ws = new WebSocket('wss://ipacel.cc/websocket/');
+// Worker
+let $w = null;
+_worker();
+function _worker(){
+	console.log('[/] Worker.正在加载...');
+	$w = new Worker('plugins/worker.js?v=0');
 
-	// 已建立连接
-	ws.onopen = function(e){
-		console.log('[/] ws.连接成功');
-		$c.wsOK = true;
-		_loop('network', true);
-		// 注册玩家
-		main_send({type: 'reg'});
-	};
+	// 收到的消息
+	$w.onmessage = (e) => {
+		let $tp = e.data;
+		//console.log($tp);
 
-	// 收到消息
-	ws.onmessage = function(evt){
-		let $funcStartTime = Date.now();
+		if($tp.type === 'worker_ok'){ // worker启动完成
+			// 启动 ws
+			console.log('[/] Worker启动完成');
+			$w.postMessage({type: 'start_ws'});
+		}else
 
-		// 服务器将为每个玩家打包数据
-		// [
-		// 	{data},
-		// 	{data},
-		// ]
+		if($tp.type === 'ws.onopen'){ // 建立连接
+			$c.wsOK = true;
+			_loop('network', true);
+			// 注册玩家
+			main_send({type: 'reg'});
+		}else
 
-		let $tp = JSON.parse(evt.data);
+		if($tp.type === 'ws.onmessage'){ // 收到消息
+			let $funcStartTime = Date.now();
+			// 更新上次连接时间
+			$c.time.lastHave = $funcStartTime;
 
-		// 遍历数组
-		$tp.data.forEach((e) => {
-			// 交给main
-			main(e, $tp.time);
-		});
+			// 遍历数组
+			$tp.data.data.forEach((e) => {
+				// 交给main
+				main(e, $tp.data.time);
+			});
+		}else
 
-		// 更新上次连接时间
-		$c.time.lastHave = $funcStartTime;
-	};
-
-	// 已断开连接
-	ws.onclose = function (){
-		// 结束所有循环
-		_loop('player', false);
-		_loop('tps', false);
-		_loop('network', false);
-		// 注销ws
-		$c.wsOK = false;
-		ws.close();
-		console.log('[/] ws.连接已断开, 4秒后重试');
-		setTimeout(function(){start_ws();}, 4000);
+		if($tp.type === 'ws.onclose'){ // 连接断开
+			// 结束所有循环
+			_loop('player', false);
+			_loop('tps', false);
+			_loop('network', false);
+			$c.wsOK = false;
+		}
 	};
 };
+
+// ws 初始化
+// start_ws();
+// function start_ws(){
+// 	console.log('[/] ws.开始连接...');
+// 	ws = new WebSocket('wss://ipacel.cc/websocket/');
+
+// 	// 已建立连接
+// 	ws.onopen = function(e){
+// 		console.log('[/] ws.连接成功');
+// 		$c.wsOK = true;
+// 		_loop('network', true);
+// 		// 注册玩家
+// 		main_send({type: 'reg'});
+// 	};
+
+// 	// 收到消息
+// 	ws.onmessage = function(evt){
+// 		let $funcStartTime = Date.now();
+
+// 		// 服务器将为每个玩家打包数据
+// 		// [
+// 		// 	{data},
+// 		// 	{data},
+// 		// ]
+
+// 		let $tp = JSON.parse(evt.data);
+
+// 		// 遍历数组
+// 		$tp.data.forEach((e) => {
+// 			// 交给main
+// 			main(e, $tp.time);
+// 		});
+
+// 		// 更新上次连接时间
+// 		$c.time.lastHave = $funcStartTime;
+// 	};
+
+// 	// 已断开连接
+// 	ws.onclose = function (){
+// 		// 结束所有循环
+// 		_loop('player', false);
+// 		_loop('tps', false);
+// 		_loop('network', false);
+// 		// 注销ws
+// 		$c.wsOK = false;
+// 		ws.close();
+// 		console.log('[/] ws.连接已断开, 4秒后重试');
+// 		setTimeout(function(){start_ws();}, 4000);
+// 	};
+// };
 
 
 
@@ -213,18 +259,18 @@ function start_ws(){
 function _loop($name, $start){
 	// 用于启动/停止循环
 	if($start === true){
-		if($name === 'network') $c.loop._network = setInterval(_loop_network, $c.loop._network_time);
+		if($name === 'network') $c.loop._net = setInterval(_loop_net, $c.loop._net_time);
 		if($name === 'tps') $c.loop._tps = setInterval(_loop_tps, $c.loop._tps_time);
-		if($name === 'player') $c.loop._player = setInterval(_loop_player, $c.loop._player_time);
+		if($name === 'player') $c.loop._ui = setInterval(_loop_ui, $c.loop._ui_time);
 	}else{
-		if($name === 'network') clearInterval($c.loop._network);
+		if($name === 'network') clearInterval($c.loop._net);
 		if($name === 'tps') clearInterval($c.loop._tps);
-		if($name === 'player') clearInterval($c.loop._player);
+		if($name === 'player') clearInterval($c.loop._ui);
 	}
 };
 
 // 网络io循环
-function _loop_network(){
+function _loop_net(){
 	let $funcStartTime = Date.now();
 
 	// 发送心跳包
@@ -246,12 +292,18 @@ function _loop_network(){
 	}
 	// 如果数据不为空则发送
 	if($arr.length > 0){
-		ws.send(JSON.stringify({
+		$w.postMessage({type: 'ws_send', data: {
 			id: $c.player.id,
 			key: $c.player.key,
 			time: $funcStartTime,
 			data: $arr,
-		}));
+		}});
+		// ws.send(JSON.stringify({
+		// 	id: $c.player.id,
+		// 	key: $c.player.key,
+		// 	time: $funcStartTime,
+		// 	data: $arr,
+		// }));
 		$c.time.lastSend = $funcStartTime;
 	}
 
@@ -366,7 +418,7 @@ function _loop_tps(){
 
 
 // 本地ui处理循环
-function _loop_player(){
+function _loop_ui(){
 	let $funcStartTime = Date.now();
 
 	// 玩家移动
@@ -378,7 +430,7 @@ function _loop_player(){
 			if($t.WASD.enable === true){
 				let $place = [0, 0, 0, 0, 0];
 				// 如果是键盘就将其转换为角度
-				if($t.WASD.isKeyboard === true || true){
+				if($t.WASD.isKeyboard === true){
 					// 遍历按下的键, 获取固定角度名
 					let $keyName = '';
 					for(let key in $t.WASD.keyboard){
@@ -396,15 +448,17 @@ function _loop_player(){
 					}
 
 					$place[3] = $a;
+
+					// 移动时速度倍率递增, 直到1. 反之递减
+					if($t.WASD.angle[2] !== 1){
+						$t.WASD.angle[2] = Math.min(Math.max($t.WASD.angle[2] + 0.2, 0.5), 1);
+					}
+				}else{
+					$place[3] = $t.WASD.angle[0];
 				}
 
-				// 根据连续移动时间, 动态缩放移动步长
-				let $stepSize = $t.WASD.stepSize; // 最大步长
-				let $continuity_move_time = $funcStartTime - $c.time.player_move_start;
-				if($continuity_move_time < 100){
-					$stepSize = $continuity_move_time * ($t.WASD.stepSize / 200);
-				}
-
+				// 根据速度倍率计算步长
+				let $stepSize = $t.WASD.angle[2] * $t.WASD.stepSize;
 
 				// 已知偏航角和圆的半径, 计算圆上点的坐标
 				$place[0] = Math.round(Math.sin($place[3] * Math.PI / 180) * $stepSize);
@@ -440,6 +494,14 @@ function _loop_player(){
 				//__player_move();
 			}else{
 				$c.time.player_move_start = $funcStartTime;
+
+				// 使用键盘控制
+				if($t.WASD.isKeyboard === true){
+					// 反之递减, 移动时速度倍率递增, 直到1.
+					if($t.WASD.angle[2] !== 0){
+						$t.WASD.angle[2] = Math.max($t.WASD.angle[2] - 0.1, 0);
+					}
+				}
 			}
 		}
 	};
@@ -463,9 +525,9 @@ function _loop_player(){
 					<p title="[宽, 高]">视窗尺寸: [${getClientWidthHeight()}]</p>
 
 					<br />
-					<p>MSPT: UI:${$c.time.mspt_ui}/${$c.loop._player_time}, TPS:${$c.time.mspt_tps}/${$c.loop._tps_time}, NET:${$c.time.mspt_net}/${$c.loop._network_time}. SERVER:${$c.time.mspt_server} (ms)</p>
+					<p>MSPT: UI:${$c.time.mspt_ui}/${$c.loop._ui_time}, MAIN:${$c.time.mspt_tps}/${$c.loop._tps_time}, NET:${$c.time.mspt_net}/${$c.loop._net_time}. SERVER:${$c.time.mspt_server} (ms)</p>
 					<p>DOM数量: ${document.querySelectorAll('*').length}</p>
-					<p>内存占用: ${Math.round(window.performance.memory.usedJSHeapSize / 1024)}KB / ${Math.round(window.performance.memory.totalJSHeapSize / 1024)}KB / ${Math.round(window.performance.memory.jsHeapSizeLimit / 1024)}KB (Data: ${Math.round((JSON.stringify($c).length + JSON.stringify($c).length) / 1024)}KB)</p>
+					<p>内存占用: ${Math.round(window.performance.memory.usedJSHeapSize / 1024)}KB / ${Math.round(window.performance.memory.totalJSHeapSize / 1024)}KB (Data: ${Math.round((JSON.stringify($c).length + JSON.stringify($c).length) / 1024)}KB)</p>
 					<p>相对时间: ${Math.round(performance.now())}ms</p>
 
 					<br />
@@ -533,16 +595,17 @@ function main($tp, $serverTime){
 		}
 
 		// 遍历消息列表
+		geb('message-list').innerHTML = '';
 		$tp.data.message.forEach((e) => {
 			main({
 				type: 'message', type_message: 'old',
 				message: e,
 			});
 		});
-		main({
-			type: 'message', type_message: 'old',
-			message: '--- 以上为历史消息 ---',
-		});
+		// main({
+		// 	type: 'message', type_message: 'old',
+		// 	message: '--- 以上为历史消息 ---',
+		// });
 
 		// 启动循环
 		_loop('tps', true);
@@ -554,14 +617,14 @@ function main($tp, $serverTime){
 		// 判断是不是自己
 		if($tp.id === $c.player.id){
 			// 判断坐标差异是否大于这一段时间的最大移动距离
-			let $_maxRange = ($funcStartTime - $serverTime) / 1000 * (1000 / 20 * 10) + 100; // +100 容错
+			let $_maxRange = ($funcStartTime - $serverTime) / 30 * (13 + 2) + 100;
 			//console.log($_maxRange, $c.entity[$c.player.id].place[0] - $tp.place[0]);
 			if(Math.abs($c.entity[$c.player.id].place[0] - $tp.place[0]) > $_maxRange
 			|| Math.abs($c.entity[$c.player.id].place[1] - $tp.place[1]) > $_maxRange
 			|| Math.abs($c.entity[$c.player.id].place[2] - $tp.place[2]) > $_maxRange
 			){
 				// 应用服务器的坐标
-				//$need = true;
+				// $need = true;
 			}
 		}else{
 			$need = true;
@@ -591,7 +654,7 @@ function main($tp, $serverTime){
 
 		// 玩家加入消息
 		main({
-			type: 'message', type_message: 'old',
+			type: 'message', type_message: 'new',
 			message: 'SERVER > '+ $tp.data.name +'加入了服务器',
 		});
 	}else
@@ -599,7 +662,7 @@ function main($tp, $serverTime){
 	if($tp.type === 'playerQuit'){ // 玩家退出
 		// 玩家退出消息
 		main({
-			type: 'message', type_message: 'old',
+			type: 'message', type_message: 'new',
 			message: 'SERVER > '+ $c.entity[$tp.id].name +'跑了',
 		});
 
@@ -617,11 +680,15 @@ function main($tp, $serverTime){
 	}else
 
 	if($tp.type === 'message'){ // 渲染一条消息
-		if($tp.type_message === 'player'){
+		if($tp.type_message === 'player'){ // 玩家发送消息
 			addMessage($c.entity[$tp.id].name +' > '+ $tp.message);
 		}else
 
-		if($tp.type_message === 'old'){
+		if($tp.type_message === 'old'){ // 旧消息
+			addMessage($tp.message, 'old');
+		}else
+
+		if($tp.type_message === 'new'){ // 新消息
 			addMessage($tp.message);
 		}
 	}else
@@ -715,6 +782,10 @@ function main_send($tp){
 	let $funcStartTime = Date.now();
 
 	if($tp.type === 'sendMessage'){ // 发送聊天消息
+		// 如果消息为空则不发送
+		if(geb('message-input').value.replaceAll(' ', '').replaceAll('　', '') === ''){
+			return false;
+		}
 		// 创建消息发送
 		$t.queue_net['sendMessage'+ $funcStartTime] = {
 			type: 'sendMessage',
@@ -872,7 +943,7 @@ function main_cope($tp){
 
 			// 条件成立
 			if($triggerOK === true){
-				console.log($e);
+				// console.log($e);
 				// 初始化程序数据
 				if($e?.mode === undefined) $e.mode = ['all'];
 				if($e?.__pointer === undefined) $e.__pointer = 0;
@@ -934,7 +1005,7 @@ function main_cope($tp){
 		// npc_id覆盖
 		let $original_id = $tp.id;
 		if($tp.program?.sudo_npc_id){
-			$tp.id = $tp.program?.sudo_npc_id;
+			$tp.id = $tp.program.sudo_npc_id;
 		}
 		// ---
 
@@ -1085,16 +1156,8 @@ function main_cope($tp){
 
 };
 
-
-// 窗口尺寸变化事件
-window.addEventListener('resize', function(){
-	$t.window.reRenderForWindowSize = true;
-});
-
-
 // 键盘按下事件
-// onkeydown = 连续按下, onkeyup = 松开
-document.onkeydown = function (event){
+function _document_onkeydown(event){
 	event = event || window.event;
 	// console.log("按钮按下", event);
 
@@ -1130,9 +1193,9 @@ document.onkeydown = function (event){
 		$t.WASD.enable = true;
 	}
 
-
 };
-document.onkeyup = function (event){
+// 按键松开事件
+function _document_onkeyup(event){
 	event = event || window.event;
 	// console.log("按钮按下", event);
 
@@ -1200,8 +1263,9 @@ document.onkeyup = function (event){
 		$t.queue_entity.attack = true;
 	}
 };
+
 // 窗口失去焦点
-window.onblur = function (){
+function _window_onblur(){
 	// 恢复所有按键
 	['KeyW', 'KeyA', 'KeyS', 'KeyD'].forEach((e) => {
 		$t.WASD.keyboard[e] = false;
@@ -1209,3 +1273,9 @@ window.onblur = function (){
 	$t.WASD.enable = false;
 };
 
+// PWA
+if(navigator.serviceWorker !== null){
+	navigator.serviceWorker.register('sw.js?v=0').then((e) => {
+		//console.log('pwa - ', e);
+	});
+}

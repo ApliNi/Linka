@@ -505,77 +505,57 @@ $c.entity = {
 						},
 						{
 							type: 'program',
-							trigger_x: `$d.npc.npc9.sellOut === true`,
-							program: [
-								{type: 'text', text: '诶, 不好用吗? '},
-							],
-						},
-						{
-							type: 'program',
-							trigger_x: `$d.npc.npc9.sellOut === false`,
 							program: [
 								{type: 'text', text: '想体验一下我们的新产品吗?'},
 							],
 						},
 					],
-					{
-						type: 'program',
-						trigger_x: `$d.npc.npc9.sellOut === false`,
-						mode: ['pointer'],
-						program: [
-							[
-								{type: 'text', text: '放心, 是免费的'},
-								{
-									type: 'decision',
-									mode: true,
-									data: [
-										{id: 1, text: '收下'},
-										{id: 2, text: '拒绝'},
-										{id: 2, text: '钝角'},
-									],
-								},
-							],
-							[
-								{type: 'decision', mode: false},
-								{
-									type: 'program',
-									trigger_x: `$t.npc_func.decision.id == 1`,
-									program: [
-										{
-											type: 'js', // 修改移动速度, 更新商品计数器
-											code: `
-												$t.WASD.stepSize = 32;
-												$d.npc.npc9 = true;
-											`,
-										},
-										{type: 'text', text: '感觉如何(╹ڡ╹ )'},
-									],
-								},
-							],
-						],
-					},
-					{
-						type: 'program',
-						trigger_x: `$d.npc.npc9.sellOut === true`,
-						mode: ['pointer'],
-						program: [
-							[
-								{
-									type: 'program',
-									trigger_x: `$t.npc_func.decision.id == 2`,
-									program: [
-										{
-											type: 'js', // 恢复移动速度
-											code: `$t.WASD.stepSize = 13`,
-										},
-										{type: 'text', text: '欢迎下次光临~'},
-									],
-								},
-							],
-						],
-					},
-
 					[
+						{type: 'text', text: '放心, 是免费的'},
+						{
+							type: 'decision',
+							mode: true,
+							data: [
+								{id: 1, text: '收下'},
+								{id: 2, text: '拒绝'},
+								{id: 3, text: '钝角'},
+							],
+						},
+					],
+					[
+						{type: 'decision', mode: false},
+						{
+							type: 'program',
+							trigger_x: `$t.npc_func.decision.id == 1`,
+							program: [
+								{
+									type: 'js', // 修改移动速度, 更新商品计数器
+									code: `
+										$t.WASD.stepSize = 32;
+										$d.npc.npc9 = true;
+									`,
+								},
+								{type: 'text', text: '感觉如何(╹ڡ╹ )'},
+							],
+						},
+						{
+							type: 'program',
+							trigger_x: `$t.npc_func.decision.id == 2`,
+							program: [
+								{
+									type: 'js', // 恢复移动速度
+									code: `$t.WASD.stepSize = 13`,
+								},
+								{type: 'text', text: '欢迎下次光临~'},
+							],
+						},
+						{
+							type: 'program',
+							trigger_x: `$t.npc_func.decision.id == 3`,
+							program: [
+								{type: 'text', text: '哎呀'},
+							],
+						},
 						{
 							type: 'js', // 恢复按键
 							code: `$t.WASD.disable = false;`,
@@ -587,7 +567,7 @@ $c.entity = {
 								{id: '上下黑边', mode: false},
 							],
 						},
-					]
+					],
 				],
 			},
 		],

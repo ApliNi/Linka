@@ -7,6 +7,9 @@ let $lib_c = {
 //常用的获取div
 function geb($i){return document.getElementById($i)};
 
+// 是否为移动端
+function isPE(){return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? true : false;}
+
 //获取url参数
 function fromUrl($name){
 	let $i = window.location.search.substring(1).match(new RegExp('(^|&)'+ $name +'=([^&]*)(&|$)', 'i'));
@@ -26,7 +29,7 @@ function getClientWidthHeight(){
 };
 
 // 渲染 Tpsbar
-function render_tpsbar($mspt, $ping){
+async function render_tpsbar($mspt, $ping){
 	// tps
 	let $tps = Math.round(1000 / Math.max($c.loop._tps_time, $mspt));
 	// 进度条, 百分比
@@ -41,7 +44,7 @@ function render_tpsbar($mspt, $ping){
 };
 
 // 通过服务器同步数据创建实体dom
-function render_entity($tp){
+async function render_entity($tp){
 
 	// 创建实体主dom
 	let $dom = document.createElement('div');
@@ -79,7 +82,7 @@ function render_entity($tp){
 };
 
 // 更新玩家的坐标
-function update_place_to_player($entity = ''){
+async function update_place_to_player($entity = ''){
 	// 注意!!! css的top是反方向的y轴, 赋值时使用 0-y 即可
 	// 注意!!! .debug.yawAngle偏航角的角度需要 -90, 因为dom是歪的
 
@@ -104,7 +107,7 @@ function update_place_to_player($entity = ''){
 };
 
 // 更新需要缩放的层的缩放中心
-function update_place_to_transformOrigin(){
+async function update_place_to_transformOrigin(){
 	let $xy = [
 		$c.entity[$c.player.id].place[0],
 		0 - $c.entity[$c.player.id].place[1],
@@ -115,7 +118,7 @@ function update_place_to_transformOrigin(){
 };
 
 // 更新背景的坐标
-function update_place_to_background(){
+async function update_place_to_background(){
 	// 注意!!! css的top是反方向的y轴, 赋值时使用 0-y 即可
 
 	let $xy = [
@@ -147,29 +150,35 @@ function isOverlap(p1, d, p2){
 };
 
 // 显示消息到聊天框
-function addMessage($m){
+async function addMessage($m, $class = 'new'){
+	// 删除旧消息
+	let $dom = geb('message-list').getElementsByTagName('p');
+	for(let key = 0; $dom.length >= 256; key++){ // 256条消息
+		$dom[key].remove();
+		console.log(1);
+	}
 	let $p = document.createElement('p');
-		$p.setAttribute('class', 'new');
-		$p.innerText = $m; // filter()
+		$p.setAttribute('class', $class);
+		$p.innerHTML = `<span>${filter($m)}</span>`;
 	geb('message-list').appendChild($p);
 };
 
 // 打开或关闭聊天组件
-function openMessageDom($mode){
+async function openMessageDom($mode){
 	if($mode === true){
 		$t.message.enable = true;
-		geb('message-list').classList.add('-open');
-		geb('message-input').style.display = 'block';
+		geb('message').classList.add('-open');
 		geb('message-input').focus();
+		// 滚动到底部
+		geb('message-list').scrollTop = geb('message-list').scrollHeight;
 	}else{
 		$t.message.enable = false;
-		geb('message-list').classList.remove('-open');
-		geb('message-input').style.display = 'none';
+		geb('message').classList.remove('-open');
 	}
 };
 
 // 动效库
-function animationLib($id, $m){
+async function animationLib($id, $m){
 	if($id === '主体放大'){
 		// 遍历指定class的元素
 		Array.prototype.forEach.call(geb('main').getElementsByClassName('moveFollowLayer'), (e) => {
@@ -200,5 +209,13 @@ function triggerOK($arr1, $arr2){
 	return false;
 };
 
-// 向玩家展示选择框, 回调选择的内容
-
+// btnStyleSwitch 按钮样式切换, 添加或删除 -open 标签
+function btnSS($this){
+	if($this.classList.contains('-open')){
+		$this.classList.remove('-open');
+		return false;
+	}else{
+		$this.classList.add('-open');
+		return true;
+	}
+};
