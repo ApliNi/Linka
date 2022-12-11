@@ -5,9 +5,10 @@ function _sensor($mode, $this){
 	if(!$c.plugins?.sensor){
 		$c.plugins.sensor = {
 			enable: false,
-			gyro: {
-				reset_ing: false,
-				origin: [0, 0, 0],
+			gyro: { // 陀螺仪传感器
+				reset_ing: false,	// 校准模式, 启动后始终进行校准
+				reset_ok: false,	// 启动时校准一次, 关闭时撤销
+				origin: [0, 0, 0],	// 自定义原点
 			},
 		};
 	}
@@ -41,6 +42,7 @@ function _sensor($mode, $this){
 				console.log('传感器权限申请失败');
 				// 恢复按钮状态, 关闭使能
 				$c.plugins.sensor.enable = false;
+				$c.plugins.sensor.gyro.reset_ok = false;
 				btnSS($this);
 			}
 		}else{
@@ -54,8 +56,9 @@ function _sensorFunc($mode, e){
 	// 传感器类型
 	if($mode === 1){ // 陀螺仪
 		//console.log(e.alpha, e.beta, e.gamma);
-		// 原点重置模式
-		if($c.plugins.sensor.gyro.reset_ing === true){
+		// 原点重置模式, 第一次启动时也重置一遍
+		if($c.plugins.sensor.gyro.reset_ing === true || $c.plugins.sensor.gyro.reset_ok === false){
+			$c.plugins.sensor.gyro.reset_ok = true;
 			$c.plugins.sensor.gyro.origin = [e.alpha, e.beta, e.gamma];
 		}
 		// 应用自定义原点

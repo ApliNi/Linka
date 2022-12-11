@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "lokijs": "^1.5.12",
     "ws": "^8.11.0"
   }
 }

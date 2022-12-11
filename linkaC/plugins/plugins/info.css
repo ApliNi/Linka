@@ -1,0 +1,330 @@
+/* 聊天组件 */
+#message{
+	width: 100%;
+	position: fixed;
+	bottom: 0;
+	padding: 3px;
+	z-index: 100;
+}
+#message > .message_input_bc{
+	display: none;
+	width: calc(100% - 64px);
+	height: 26px; /* 输入框高度 */
+	background-color: rgba(0, 0, 0, 50%);
+	text-align: right;
+}
+#message > .message_input_bc > .btn{
+	margin: 0;
+	height: 26px;
+	width: 64px;
+	position: absolute;
+	z-index: 1;
+}
+#message.-open > .message_input_bc{
+	display: block;
+}
+#message > input{
+	display: none;
+	position: absolute;
+	bottom: 0;
+	padding: 100vh 74px 7px 4px;
+	background-color: transparent;
+
+	width: 100%;
+	border: none;
+	outline: none;
+	color: #fff;
+}
+#message.-open > input{
+	display: block;
+}
+#message > #message-list > p{
+	transition: all 0s;
+	display: flex;
+	margin: 0;
+	color: #fff;
+	background-color: rgba(0, 0, 0, 32%);
+	padding: 4px 0 0 4px;
+	height: auto;
+}
+#message > #message-list > p.old{
+	/* transition: all 0s; */
+	opacity: 0;
+	/* height: 0;
+	padding-top: 0; */
+	color: #ddd;
+}
+#message > #message-list > p.new{
+	transition: all 0s;
+	opacity: 0;
+	/* height: 0;
+	padding-top: 0; */
+	animation: newMessage 8s;
+}
+#message > #message-list > p.center{
+	display: flex;
+	justify-content: center;
+}
+#message > #message-list > p.player_join,
+#message > #message-list > p.player_quit{
+	animation: newMessage 4s;
+	color: #feffb0;
+}
+/* @keyframes newMessage{
+	0% {opacity: 1; height: auto; padding-top: 4px;}
+	80% {opacity: 1; height: auto; padding-top: 4px;}
+	99% {opacity: 0; height: auto; padding-top: 4px;}
+	100% {opacity: 0; height: 0; padding-top: 0;}
+} */
+@keyframes newMessage{
+	0% {opacity: 1;}
+	80% {opacity: 1;}
+	99% {opacity: 0;}
+	100% {opacity: 0; content-visibility: hidden;}
+}
+#message > #message-list{
+	transition: all 0s;
+	margin-bottom: 32px;
+	width: min(50%, 550px);
+	position: absolute;
+	bottom: 0;
+	pointer-events: none;
+	content-visibility: auto;
+}
+@media(max-width: 710px){
+	#message > #message-list{
+		width: 100%;
+	}
+}
+#message.-open > #message-list{
+	transition: width 0s; /* 不要修改, 影响自动滚动 */
+	min-height: 100px;
+	width: min(80%, 1000px);
+	max-height: var(--message_list_max_height);
+	overflow-y: scroll;
+	background-color: rgb(0 0 0 / 42%);
+	pointer-events: auto;
+	z-index: 101;
+}
+#message.-open > #message-list > p{
+	opacity: 1 !important; /* !important 覆盖动画样式, 但在Safari中无效 */
+	content-visibility: visible;
+	/* height: auto !important;
+	padding-top: 4px !important; */
+	transition: all .2s ease;
+	background-color: transparent;
+	/* margin: 10px 0; */
+}
+#message.-open > #message-list > p:hover{
+	background-color: rgb(0 0 0 / 3%);
+}
+#message.-open > #message-list::-webkit-scrollbar-thumb{
+	background: rgba(0, 0, 0, 0.7);
+}
+#message.-open > #message-list::-webkit-scrollbar-track{
+	background: rgba(0, 0, 0, 0.32);
+}
+#message > #message-list .m1{
+	white-space: pre;
+	margin-right: 5px;
+}
+#message > #message-list .m1 > .name{
+	background-color: rgb(0 0 0 / 42%);
+	padding: 2px 5px 1px 5px;
+	font-size: 14px;
+	color: #cbff64;
+}
+.m2{
+	display: flex;
+	flex-wrap: wrap;
+	flex-direction: row;
+}
+.m2 img{
+	max-height: calc(var(--message_list_max_height) * 0.4);
+	outline: solid 1px transparent;
+	padding: 10px;
+	width: 100%;
+}
+.m2 img:first-child{
+	/* margin-top: -10px; */
+}
+.m2 img:hover{
+	outline: solid 1px rgb(255 255 255 / 32%);
+}
+.m2 a{
+	color: #6dccf9;
+}
+.m2 a:visited{
+	color: #d2e2e9;
+}
+.m2 a:hover{
+	text-decoration: underline;
+	background-color: transparent;
+}
+
+#message > #message-list > p.flat .m1 .name{
+	padding: 2px 30px 1px 30px;
+	color: var(--a0);
+}
+
+/* 聊天消息也在玩家名称上方显示 */
+#all-player > .entity > .top_text > span.message{
+	background-color: var(--a0);
+	color: var(--a1);
+	outline: solid 1px rgb(0, 170, 255);
+	max-width: 300px;
+	height: 100%;
+}
+#all-player > .entity > .top_text > span.message .m2 img{
+	padding: 4px 0 7px 0;
+}
+
+
+
+/* Tpsbar */
+#tpsbar{
+	position: fixed;
+	top: 14px;
+	left: calc(50% - 200px);
+	min-width: 400px;
+}
+#tpsbar:empty{
+	top: -50px;
+}
+#tpsbar > p{
+	text-align: center;
+	margin: 0px;
+}
+#tpsbar > div{
+	min-width: 400px;
+	max-width: 400px;
+	background-color: rgb(53, 87, 17);
+	height: 5px;
+}
+#tpsbar > div > div.a{
+	background-color: rgb(121, 255, 19);
+	height: 5px;
+}
+@media(max-width: 410px){
+	#tpsbar{
+		position: static;
+		min-width: 0px;
+	}
+	#tpsbar > div{
+		display: none;
+	}
+}
+
+/* 玩家列表 */
+#key-tab, #F3{
+	display: none;
+
+	position: fixed;
+	top: 47px;
+	left: calc(50% - 200px);
+
+	background-color: rgba(0, 0, 0, 0.2);
+	padding: 10px;
+	margin: 10px;
+}
+#key-tab > p{
+	margin: 0;
+	line-height: 23px;
+	font-size: 14px;
+}
+#key-tab > p.title{
+	margin-top: 10px;
+	font-size: 15px;
+	color: rgba(255, 255, 255, 0.486);
+}
+#key-tab > p.title:first-child{
+	margin-top: 0;
+}
+#key-tab > p.main{
+	margin-left: 23px;
+	line-height: 21px;
+	color: #fff;
+}
+
+/* F3 调试界面 */
+#F3{
+	top: 32px;
+	left: 10px;
+}
+#F3:hover{
+	background-color: rgba(0, 0, 0, 0.4);
+}
+#F3 p{
+	margin: 0;
+	color: #fff;
+}
+#F3 hr{
+	height: 2px;
+}
+
+/* 玩家选择消息组件 */
+#decision{
+	transition: all 0.4s;
+	opacity: 0;
+	position: fixed;
+	bottom: 15vh;
+	left: calc(50% - 200px);
+	margin-bottom: -20px;
+	z-index: 150;
+}
+#decision.-join{
+	opacity: 1;
+	margin-bottom: 0;
+}
+#decision.-join::after{
+	content: attr(title);
+	position: fixed;
+	bottom: 10%;
+	left: 0;
+	margin: 5px;
+}
+#decision > p{
+	text-align: center;
+	width: 400px;
+	margin: 25px 0 0 0;
+	padding: 5px 10px;
+	background-color: var(--a0);
+	border-top: 3px solid var(--c);
+	box-shadow: 0 15px 35px rgb(50 50 93 / 10%), 0 5px 15px rgb(0 0 0 / 7%);
+	outline: 1px solid var(--t);
+}
+#decision > p::after,
+#decision > p::before{
+	content: "";
+	position: absolute;
+	width: 10px;
+	height: 10px;
+	border-top: 5px solid var(--e);
+	border-left: 5px solid var(--e);
+	margin: 3px;
+	transform: rotate(270deg);
+	transition: all 0.2s;
+	right: -47px;
+	opacity: 0;
+}
+#decision > p::before{
+	width: 15px;
+	height: 15px;
+	right: 0;
+	left: -47px;
+	transform: rotate(90deg);
+}
+#decision > p.-join{
+	border-top: 3px solid var(--e);
+	box-shadow: 0 15px 35px 7px rgb(50 50 93 / 10%), 0 5px 15px rgb(0 0 0 / 7%);
+}
+#decision > p.-join::after{
+	right: -32px;
+	opacity: 1;
+	transform: rotate(315deg);
+}
+#decision > p.-join::before{
+	left: -32px;
+	opacity: 1;
+	transform: rotate(135deg);
+}

@@ -1,60 +1,27 @@
 const WebSocket = require('ws');
-const lib = require('./lib.js');
+const loki = require('lokijs');
+const starter = require('./starter.js');
+const log = require('./plugins/log.js');
+const comm = require('./plugins/comm.js');
+log.out('INFO', '[主线程] 服务器已完成模块加载, 正在启动...');
 
 // 全局变量
-$c = {
-	config: {	// 系统配置
-		due_mspt: 62,	// 预期mspt
-		max_player_num: 64,		// 最大玩家数量
-		max_message_num: 64,	// 最大聊天消息数量
-	},
-	system: {	// 系统数据
-		mspt: 0,	// mspt
-	},
-	entity: {},	// 实体数据
-	index_entity: {	// 实体索引
-		type: {	// 类型索引
-			player: [],
-			mob: [],
-		},
-	},
-	file: [	// 配置文件列表
-		'config/npc.js',
-	]
-};
-
+$c = {};
 // 全局缓存
-$t = {
-	queue_net: {	// 网络io队列
-		tpAll: {},
-		tpPlayer: {},
-	},
-	message: [],	// 聊天消息
-};
+$t = {};
+
+// 运行启动器
+starter.starte();
+
+const lib = require('./lib.js');
+const db = require('./plugins/db.js');
 
 
-// 加载文件
-load_file();
-function load_file(){
-	let fs = require('fs');
+log.out('INFO', '[网络] 正在启动 WebSocket...');
+const wss = new WebSocket.Server({port: 2027});
+log.out('INFO', '[网络] WebSocket 启动完成, 正在监听 '+ wss.options.port +'端口');
 
-	// 遍历文件列表
-	$c.file.forEach((e) => {
-		console.log('正在加载配置 '+ e +' ...');
-		let $tp = fs.readFileSync(e);
-		// 解析文件运行js配置
-		new Function($tp)();
-	});
-};
-
-
-
-console.log('正在启动 WebSocket...');
-const wss = new WebSocket.Server({ // 创建一个WebSocketServer实例
-	port: 2027,
-	//ssl_key: 'cert/8837686_linkas.ipacel.cc.key',
-	//ssl_cert: 'cert/8837686_linkas.ipacel.cc.crt',
-});
+// 监听客户端的消息
 wss.on('connection', (ws) => {
 
 	// 通讯: 客户端和服务端均通过发送数组, 软件通过遍历数组得到所有数据内容, 再将这些内容交给主程序处理
@@ -96,16 +63,17 @@ wss.on('connection', (ws) => {
 			}
 
 			if($s === false){
-				console.log('无效数据');
+				log.out('WARN', '[网络] [前置验证] 无效数据, 来自玩家: '+ db.get({id: $tp.id}).name +'('+ $tp.id +')');
 			}
 
 			// 如果玩家在服务器中
-			if(typeof $c.entity[$tp.id] === 'object'){
+			if(db.get({id: $tp.id})){
+				let $player = db.get({id: $tp.id});
 				// 更新上次连接时间
-				$c.entity[$tp.id].time.lastHave = $funcStartTime;
+				$player.time.lastHave = $funcStartTime;
 
 				// 判断最近1秒是否有发送数据
-				if($c.entity[$tp.id].time.ping < $funcStartTime - 1000){
+				if(db.get({id: $tp.id}).time.ping < $funcStartTime - 1000){
 					// 创建ping数据
 					lib.to_queue_net($tp.id, 'ping', {
 						type: 'ping',
@@ -114,30 +82,33 @@ wss.on('connection', (ws) => {
 						mspt: $c.system.mspt,
 					});
 					// 更新发送ping数据的时间
-					$c.entity[$tp.id].time.ping = $funcStartTime;
+					$player.time.ping = $funcStartTime;
+
+					db.up($player);
 				}
 			}
 
 		}else{
-			console.log('无效数据');
+			log.out('WARN', '[功能] 无效数据, 来自玩家: '+db.get({id: $tp.id}).name +'('+ $tp.id +')');
 		}
 	});
 
 	// 连接断开
 	ws.on('close', (error) => {
-		console.log('[/] 连接断开: '+ ws.id + ': '+ error);
+		log.out('PLAYER', '[网络] 连接断开: id='+ ws.id + ', error='+ error);
 		if(typeof ws.id === 'string') lib.logoutClient(ws.id);
 	});
 
 	// 连接丢失
 	ws.on('disconnect', (error) => {
-		console.log('[/] 连接丢失: '+ ws.id + ': '+ error);
+		log.out('PLAYER', '[网络] 连接丢失: id='+ ws.id + ', error='+ error);
 		if(typeof ws.id === 'string') lib.logoutClient(ws.id);
 	});
 
 });
 
-console.log('正在初始化程序和循环...');
+
+log.out('INFO', '[循环] 开始运行计时器...');
 
 // tps循环
 setInterval(function(){
@@ -145,18 +116,19 @@ setInterval(function(){
 	let $funcStartTime = Date.now();
 
 	// 遍历所有玩家
-	$c.index_entity.type.player.forEach((e) => { // e = 玩家id
+	db.get({type: 'player'}, true).forEach((e) => { // e = 玩家json
+		e = e.id;
 
 		// 处理连接超时的玩家
 		_overtime();
 		function _overtime(){
 			// 删除已超时的玩家
-			if($c.entity[e].time.lastHave < $funcStartTime - 30 * 1000){
+			if(db.get({id: e}).time.lastHave < $funcStartTime - 30 * 1000){
+				log.out('PLAYER', '[网络] '+ db.get({id: e})?.name +'('+ e +') 心跳超时');
 				lib.logoutClient(e);
-				console.log('[/] 心跳超时', e);
 			}else
 			// 向即将超时的玩家发送心跳包
-			if($c.entity[e].time.lastHave < $funcStartTime - 30 * 1000){
+			if(db.get({id: e}).time.lastHave < $funcStartTime - 30 * 1000){
 				lib.to_queue_net(e, 'heartbeat', {
 					type: 'heartbeat',
 				});
@@ -194,14 +166,16 @@ setInterval(function(){
 			// 将合并后的数据发送给目标玩家
 			if($arr.length > 0){
 				// 判断玩家是否存在
-				if($c.entity[e] !== undefined){
+				if(db.get({id: e}) !== undefined){
 					// 发送数据
-					$c.entity[e].ws.send(JSON.stringify({
+					db.get({id: e}).ws.send(JSON.stringify({
 						time: $funcStartTime,
 						data: $arr,
 					}));
 					// 更新最后发送时间
-					$c.entity[e].time.lastSend = $funcStartTime;
+					let $player = db.get({id: e});
+					$player.time.lastSend = $funcStartTime
+					db.up($player);
 				}
 			}
 			// console.log(JSON.stringify($t.queue_net));
@@ -225,10 +199,13 @@ function main($tp, ws, $clientTime){
 		//$tp.id !== '' || $tp.key !== ''
 		if(lib.is($tp.data?.name) !== '[object String]'
 		|| $tp.data.name === ''
+		|| ($tp.data.name).length > 16
 		) return false;
 
+		log.out('INFO', '[注册] '+ $tp.data.name +' 正在注册...');
+
 		// 判断玩家已满
-		if($c.index_entity.type.player.length >= $c.max_player_num){
+		if($c.system.playerNum >= $c.max_player_num){
 			ws.send(JSON.stringify({
 				time: $startTime,
 				data: [
@@ -238,17 +215,38 @@ function main($tp, ws, $clientTime){
 					},
 				],
 			}));
+			log.out('PLAYER', '[注册] ' +$tp.data.name +' 注册失败, 服务器已满');
 		}
 
 		// 生成id和通讯密钥
 		let $id = lib.uuid();
 		let $key = lib.uuid('key');
 
-		// 在ws中添加id
+		log.out('INFO', '[注册] ' +$tp.data.name +' 分配基础数据: ID='+ $id +', KEY='+ $key);
+
+		// 在ws中添加id, 用于从数据包中找到玩家
 		ws.id = $id;
 
 		// 创建玩家
-		$c.entity[$id] = {
+		// $c.entity[$id] = {
+		// 	type: 'player',
+		// 	id: $id,
+		// 	ws: ws,
+		// 	key: $key,	// 通讯密钥
+		// 	name: $tp.data.name,	// 玩家名称
+		// 	time: {	// 各种时间
+		// 		lastHave: $funcStartTime,	// 客户端 最后连接 服务器
+		// 		lastSend: 0,				// 服务器 最后连接 客户端
+		// 		place: $funcStartTime,		// 最后同步坐标
+		// 		ping: $funcStartTime,		// 最后发送ping数据
+		// 	},
+		// 	place: [0, 0, 0, 0, 0],	// 玩家位置: x, y, z, 偏航角, 俯仰角
+		// };
+		// 将玩家添加到type索引
+		// $c.index_entity.type.player.push($id);
+
+		// 将玩家添加到数据库
+		db.add({
 			type: 'player',
 			id: $id,
 			ws: ws,
@@ -260,10 +258,12 @@ function main($tp, ws, $clientTime){
 				place: $funcStartTime,		// 最后同步坐标
 				ping: $funcStartTime,		// 最后发送ping数据
 			},
+			place_x: 0,
+			place_y: 0,
 			place: [0, 0, 0, 0, 0],	// 玩家位置: x, y, z, 偏航角, 俯仰角
-		};
-		// 将玩家添加到type索引
-		$c.index_entity.type.player.push($id);
+		});
+
+		$c.system.playerNum ++;
 
 		// 将数据发送给玩家
 		lib.to_queue_net($id, 'reg', {
@@ -292,7 +292,7 @@ function main($tp, ws, $clientTime){
 			mspt: $c.system.mspt,
 		});
 
-		console.log('玩家加入: '+ $id);
+		log.out('PLAYER', '[注册] '+ $tp.data.name +' 已加入服务器');
 
 		return true;
 	}else
@@ -328,16 +328,19 @@ function main($tp, ws, $clientTime){
 		// || Math.abs($tp.data.place[2] - $c.entity[$tp.id].place[2]) > $_maxRange
 		// ) return false;
 
+		let $player = db.get({id: $tp.id});
 		// 存储玩家位置
-		$c.entity[$tp.id].place = $tp.data.place;
+		$player.place = $tp.data.place;
 		// 更新位置更新时间
-		$c.entity[$tp.id].time.place = $funcStartTime;
+		$player.time.place = $funcStartTime;
+
+		db.up($player);
 
 		// 广播玩家位置
-		lib.to_queue_net('_!ALL_', 'playerMove', {
+		lib.to_queue_net('_!ALL_', 'playerMove_'+ $tp.id, {
 			type: 'playerMove',
 			id: $tp.id,
-			place: $c.entity[$tp.id].place,
+			place: db.get({id: $tp.id}).place,
 		});
 
 		return true;
@@ -347,25 +350,46 @@ function main($tp, ws, $clientTime){
 		// 数据检查
 		if(lib.enter_playerOK($tp) !== true			// 验证玩家
 		|| lib.is($tp.data.message) !== '[object String]'	// 消息是否为字符串类型
-		|| ($tp.data.message).length > 256	// 判断消息长度是否正常
+		|| ($tp.data.message).length > 2048	// 判断消息长度是否正常
+		|| $tp.data.message.replaceAll(' ', '').replaceAll('　', '') === '' // 消息为空
 		) return false;
 
-		// 判断消息是否达到数量限制
-		if(($t.message).length >= $c.config.max_message_num){
-			// 删除第一条消息
-			$t.message.splice(0, 1);
+		// 判断是消息还是指令
+		if($tp.data.message.substring(0, 1) === '/'){
+			// 获取指令数组
+			let $comm = $tp.data.message.split(' ');
+			// 运行指令
+			let $s = comm.run($comm, $tp.id, 1);
+			if($s === false){
+				// 向玩家发送指令无效的消息
+				lib.to_queue_net($tp.id, 'message', {
+					type: 'message',
+					type_message: 'system',
+					id: $tp.id,
+					message: ['错误', '指令无效', {class: 'new system err'}],
+				});
+				log.out('PLAYER', db.get({id: $tp.id}).name +' 运行指令失败: '+ $tp.data.message);
+			}else{
+				log.out('PLAYER', db.get({id: $tp.id}).name +' 运行指令: '+ $tp.data.message);
+			}
+		}else{
+			// 服务器保存这条消息
+			$t.message.push([db.get({id: $tp.id}).name, $tp.data.message]);
+
+			// 删除超过暂存数量限制的消息
+			for(let key = 0; ($t.message).length > $c.config.max_message_num; key++){
+				$t.message.splice(key, 1);
+			}
+
+			// 广播新消息
+			lib.to_queue_net('_ALL_', 'message', {
+				type: 'message',
+				type_message: 'player',
+				id: $tp.id,
+				message: $tp.data.message,
+			});
+			log.out('PLAYER', db.get({id: $tp.id}).name +' 发送消息: '+ $tp.data.message);
 		}
-
-		// 添加这条新消息
-		$t.message.push($c.entity[$tp.id].name +' > '+ $tp.data.message);
-
-		// 广播新消息
-		lib.to_queue_net('_ALL_', 'message', {
-			type: 'message',
-			type_message: 'player',
-			id: $tp.id,
-			message: $tp.data.message,
-		});
 
 		return true;
 	}
@@ -375,4 +399,5 @@ function main($tp, ws, $clientTime){
 };
 
 
-console.log('服务器已启动!');
+
+log.out('INFO', '[主线程] 服务器已启动!');

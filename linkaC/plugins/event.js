@@ -3,7 +3,7 @@
 // 窗口尺寸变化事件
 window.addEventListener('resize', function(){
 	// 重新渲染位置
-	$t.window.reRenderForWindowSize = true;
+	$t.queue.reRenderForWindowSize = true;
 });
 
 // 按键按下事件
@@ -29,7 +29,7 @@ window.addEventListener('deviceorientation', function(e){
 }, false);
 
 // 加速度
-let $ccc = [27, 464];
+let $ccc = [-42, 456];
 window.ondevicemotion = (e) => {
 	geb('ccc').innerHTML = e.acceleration.x +'<br>'+ e.acceleration.y +'<br>'+ e.acceleration.z;
 	$ccc[0] += e.acceleration.y * 2;

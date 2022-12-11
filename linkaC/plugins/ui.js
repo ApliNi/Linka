@@ -5,27 +5,26 @@ history.scrollRestoration = 'manual';
 let $c = {
 	wsOK: false, // 已连接
 	time: {	// 各种时间
-		lastSend: 0,	// 最后发送数据包
+		// lastSend: 0,	// 最后发送数据包
 		lastHave: 0,	// 最后接收数据包
 		last_update_place_noRealTime: 0,	// 不需要实时更新位置的组件的最后位置更新时间
 		ping: 0,		// 网络延迟
 		mspt_ui: 0,		// 用户操作mspt
 		mspt_tps: 0,	// 运算mspt
-		mspt_net: 0,	// 网络io-mspt
+		// mspt_net: 0,	// 网络io-mspt
 		mspt_server: 0,	// 服务器mspt
 		player_move_start: 0, // ui循环中, 玩家开始移动前{ui_mspt}毫秒的时间
 	},
-	lastConnectionTime: 0, // 与服务器通讯的时间
 	player: { // 用户数据
 		id: '',
 		key: '',
-		name: (fromUrl('name') === '')? '未命名玩家' : fromUrl('name'),
+		name: (fromUrl('name') === '')? '未命名玩家' : fromUrl('name').substring(0, 16),
 	},
 	entity: {},	// 实体数据
 	index_entity: {},	// 实体索引
 	loop: { // 循环指标 and 循环本体
-		_net_time: 62,
-		_net: null,
+		// _net_time: 62, // 搬到了 worker线程
+		// _net: null,
 
 		_tps_time: 62,
 		_tps: null,
@@ -33,16 +32,17 @@ let $c = {
 		_ui_time: 30,
 		_ui: null,
 	},
+
 	plugins: {}, // 插件数据, 插件自己填充
 };
 
 // 全局缓存
 let $t = {
-	queue_net: {},	// 网络io队列
+	// queue_net: {},	// 网络io队列
 	WASD: {	// 玩家移动处理队列
 		disable: false,	// 移动被禁用
-		enable: false,	// 当前是否存在移动事件
-		isKeyboard: true,	// 是不是键盘操作
+		enable: false,	// 是否需要移动
+		isKeyboard: true,	// 是键盘操作
 		keyboard: {	// 键盘的4个按键
 			KeyW: false,
 			KeyA: false,
@@ -53,15 +53,12 @@ let $t = {
 			KeyW: 0,
 			KeyWKeyA: -45,
 			KeyWKeyAKeyD: 0,
-
 			KeyA: -90,
 			KeyAKeyS: -135,
 			KeyWKeyAKeyS: -90,
-
 			KeyS: -180,
 			KeySKeyD: 135,
 			KeyAKeySKeyD: -180,
-
 			KeyD: 90,
 			KeyWKeyD: 45,
 			KeyWKeySKeyD: 90,
@@ -69,13 +66,11 @@ let $t = {
 		angle: [0, 0, 0],	// 偏航角, 俯仰角, 速度倍率(0~1)
 		stepSize: 13,	// 移动步长
 	},
-	queue_entity: {	// 实体相关事件
+	queue: {	// 队列
 		move: [],	// 移动的实体的id
 		attack: false,	// 玩家攻击
 		disable_attack: false,
 		overlap: [],	// 在自己的攻击范围内的实体 | 当前碰撞的实体
-	},
-	window: {
 		reRenderForWindowSize: false,	// 重新渲染, 根据窗口尺寸
 	},
 	message: {	// 聊天组件
@@ -154,161 +149,72 @@ function _worker(){
 			_loop('tps', false);
 			_loop('network', false);
 			$c.wsOK = false;
+		}else
+
+		if($tp.type === 'cc'){ // 测试
+			new Function($tp.func)();
 		}
 	};
 };
-
-// ws 初始化
-// start_ws();
-// function start_ws(){
-// 	console.log('[/] ws.开始连接...');
-// 	ws = new WebSocket('wss://ipacel.cc/websocket/');
-
-// 	// 已建立连接
-// 	ws.onopen = function(e){
-// 		console.log('[/] ws.连接成功');
-// 		$c.wsOK = true;
-// 		_loop('network', true);
-// 		// 注册玩家
-// 		main_send({type: 'reg'});
-// 	};
-
-// 	// 收到消息
-// 	ws.onmessage = function(evt){
-// 		let $funcStartTime = Date.now();
-
-// 		// 服务器将为每个玩家打包数据
-// 		// [
-// 		// 	{data},
-// 		// 	{data},
-// 		// ]
-
-// 		let $tp = JSON.parse(evt.data);
-
-// 		// 遍历数组
-// 		$tp.data.forEach((e) => {
-// 			// 交给main
-// 			main(e, $tp.time);
-// 		});
-
-// 		// 更新上次连接时间
-// 		$c.time.lastHave = $funcStartTime;
-// 	};
-
-// 	// 已断开连接
-// 	ws.onclose = function (){
-// 		// 结束所有循环
-// 		_loop('player', false);
-// 		_loop('tps', false);
-// 		_loop('network', false);
-// 		// 注销ws
-// 		$c.wsOK = false;
-// 		ws.close();
-// 		console.log('[/] ws.连接已断开, 4秒后重试');
-// 		setTimeout(function(){start_ws();}, 4000);
-// 	};
-// };
-
-
-
-// mspt随服务器变化
-// setInterval(function(){
-
-// 	// 碰撞检查任务
-// 	if($t.overlap.enable === true){
-// 		// 获取自己
-// 		let $i = geb('player-'+ $c.id);
-// 		let $i_xy = [parseInt($i.style.top), parseInt($i.style.left)]
-
-// 		// 遍历所有实体, 找出攻击范围与自己重复的一个实体
-// 		let $dom = geb('all-player').getElementsByClassName('player');
-
-// 		_for(); // 为了使用 return
-// 		function _for(){
-// 			for(let key in $dom){
-// 				if(!isNaN(key)){
-// 					let $e = $dom[key];
-// 					// 排除自己
-// 					if($e.id !== 'player-'+$c.id){
-// 						// 判断是否重叠
-// 						if(isOverlap($i_xy, [parseInt($e.style.top), parseInt($e.style.left)], 65)){ // 50+(80-50)/2: 自己的攻击范围触碰到对方的碰撞箱
-// 							$e.classList.add('-overlap');
-// 							$i.classList.add('-overlap');
-// 							// 将对方的id记录下来
-// 							$t.overlap.victim_id = $e.dataset.id;
-// 							$t.overlap.ing = true; // 正在发生
-// 							return;
-// 						}else{
-// 							$e.classList.remove('-overlap');
-// 							$i.classList.remove('-overlap');
-// 							$t.overlap.ing = false;
-// 						}
-// 					}
-// 				}
-// 			}
-// 		};
-
-// 		// 移除任务
-// 		$t.overlap.enable = false;
-// 	}
-
-// }, Math.max(50, $t.server_mspt));
-
 
 // 循环管理器
 function _loop($name, $start){
 	// 用于启动/停止循环
 	if($start === true){
-		if($name === 'network') $c.loop._net = setInterval(_loop_net, $c.loop._net_time);
+		if($name === 'network'){
+			$w.postMessage({type: 'net_loop', mode: true});
+		}
 		if($name === 'tps') $c.loop._tps = setInterval(_loop_tps, $c.loop._tps_time);
 		if($name === 'player') $c.loop._ui = setInterval(_loop_ui, $c.loop._ui_time);
 	}else{
-		if($name === 'network') clearInterval($c.loop._net);
+		if($name === 'network'){
+			$w.postMessage({type: 'net_loop', mode: false});
+		}
 		if($name === 'tps') clearInterval($c.loop._tps);
 		if($name === 'player') clearInterval($c.loop._ui);
 	}
 };
 
 // 网络io循环
-function _loop_net(){
-	let $funcStartTime = Date.now();
+// function _loop_net(){
+// 	let $funcStartTime = Date.now();
 
-	// 发送心跳包
-	if($c.time.lastSend < $funcStartTime - 20 * 1000){
-		$t.queue_net['heartbeat'] = {
-			type: 'heartbeat',
-		};
-	}
+// 	// 发送心跳包
+// 	if($c.time.lastSend < $funcStartTime - 20 * 1000){
+// 		$t.queue_net['heartbeat'] = {
+// 			type: 'heartbeat',
+// 		};
+// 	}
 
-	// 已超时
+// 	// 已超时
 
 
-	// 处理网络io队列
-	let $arr = [];
-	// 遍历网络io队列
-	for(let key in $t.queue_net){
-		$arr.push($t.queue_net[key]);
-		delete $t.queue_net[key];
-	}
-	// 如果数据不为空则发送
-	if($arr.length > 0){
-		$w.postMessage({type: 'ws_send', data: {
-			id: $c.player.id,
-			key: $c.player.key,
-			time: $funcStartTime,
-			data: $arr,
-		}});
-		// ws.send(JSON.stringify({
-		// 	id: $c.player.id,
-		// 	key: $c.player.key,
-		// 	time: $funcStartTime,
-		// 	data: $arr,
-		// }));
-		$c.time.lastSend = $funcStartTime;
-	}
+// 	// 处理网络io队列
+// 	let $arr = [];
+// 	// 遍历网络io队列
+// 	for(let key in $t.queue_net){
+// 		$arr.push($t.queue_net[key]);
+// 		delete $t.queue_net[key];
+// 	}
+// 	// 如果数据不为空则发送
+// 	if($arr.length > 0){
+// 		$w.postMessage({type: 'ws_send', data: {
+// 			id: $c.player.id,
+// 			key: $c.player.key,
+// 			time: $funcStartTime,
+// 			data: $arr,
+// 		}});
+// 		// ws.send(JSON.stringify({
+// 		// 	id: $c.player.id,
+// 		// 	key: $c.player.key,
+// 		// 	time: $funcStartTime,
+// 		// 	data: $arr,
+// 		// }));
+// 		$c.time.lastSend = $funcStartTime;
+// 	}
 
-	$c.time.mspt_net = Date.now() - $funcStartTime;
-};
+// 	$c.time.mspt_net = Date.now() - $funcStartTime;
+// };
 
 // tps循环
 function _loop_tps(){
@@ -319,24 +225,24 @@ function _loop_tps(){
 		add: [],
 		del: [],
 	};
-	$t.queue_entity.move.forEach((e) => { // e = 发生移动的实体的id
+	$t.queue.move.forEach((e) => { // e = 发生移动的实体的id
 		// 不是自己移动
 		if(e !== $c.player.id){
-			// 在自己的攻击范围内
+			// 是否在自己的攻击范围内
 			// 判断 对方的坐标是否在 自己的攻击范围半径 + 对方的碰撞箱半径 内
 			if(isOverlap($c.entity[$c.player.id].place, 40 + 25, $c.entity[e].place)){
 				// 不在碰撞队列中
-				if($t.queue_entity.overlap.indexOf(e) === -1){
+				if($t.queue.overlap.indexOf(e) === -1){
 					// 将这个实体添加到碰撞队列中
 					$_t.add.push(e);
-					//$t.queue_entity.overlap.push(e);
+					//$t.queue.overlap.push(e);
 				}
 			}else{
 				// 在碰撞队列中
-				if($t.queue_entity.overlap.indexOf(e) !== -1){
+				if($t.queue.overlap.indexOf(e) !== -1){
 					// 将这个实体从碰撞队列中删除
 					$_t.del.push(e);
-					//$t.queue_entity.overlap.splice($t.queue_entity.overlap.indexOf(e), 1);
+					//$t.queue.overlap.splice($t.queue.overlap.indexOf(e), 1);
 				}
 			}
 		}else
@@ -349,21 +255,21 @@ function _loop_tps(){
 				// 不是自己
 				if($id !== $c.player.id){
 					// 不在实体移动队列中
-					if($t.queue_entity.move.indexOf($id) === -1){
+					if($t.queue.move.indexOf($id) === -1){
 						// 在自己的攻击范围内
 						if(isOverlap($c.entity[$c.player.id].place, 40 + 25, $c.entity[$id].place)){
 							// 不在碰撞队列中
-							if($t.queue_entity.overlap.indexOf($id) === -1){
+							if($t.queue.overlap.indexOf($id) === -1){
 								// 将这个实体添加到碰撞队列中
 								$_t.add.push($id);
-								//$t.queue_entity.overlap.push(e2);
+								//$t.queue.overlap.push(e2);
 							}
 						}else{
 							// 在碰撞队列中
-							if($t.queue_entity.overlap.indexOf($id) !== -1){
+							if($t.queue.overlap.indexOf($id) !== -1){
 								// 将这个实体从碰撞队列中删除
 								$_t.del.push($id);
-								//$t.queue_entity.overlap.splice($t.queue_entity.overlap.indexOf(e2), 1);
+								//$t.queue.overlap.splice($t.queue.overlap.indexOf(e2), 1);
 							}
 						}
 					}
@@ -375,7 +281,7 @@ function _loop_tps(){
 	if($_t.add.length !== 0){
 		// 遍历添加
 		$_t.add.forEach((e) => {
-			$t.queue_entity.overlap.push(e);
+			$t.queue.overlap.push(e);
 			// 渲染状态
 			geb(e).classList.add('--overlap');
 			// 事件
@@ -386,28 +292,28 @@ function _loop_tps(){
 	if($_t.del.length !== 0){
 		// 遍历删除
 		$_t.del.forEach((e) => {
-			$t.queue_entity.overlap.splice($t.queue_entity.overlap.indexOf(e), 1);
+			$t.queue.overlap.splice($t.queue.overlap.indexOf(e), 1);
 			// 渲染状态
 			geb(e).classList.remove('--overlap');
 			// 事件
 			_event(['overlap', false, e]);
 		});
-		if($t.queue_entity.overlap.length === 0) geb($c.player.id).classList.remove('--overlap');
+		if($t.queue.overlap.length === 0) geb($c.player.id).classList.remove('--overlap');
 	}
-	if($_t.del.length !== 0 || $_t.add.length !== 0){
-		//console.log($t.queue_entity.overlap);
-		// 触发实体碰撞事件
-		//main_cope({type: 'overlap', data: $_t});
-	}
+	// if($_t.del.length !== 0 || $_t.add.length !== 0){
+	// 	//console.log($t.queue.overlap);
+	// 	// 触发实体碰撞事件
+	// 	//main_cope({type: 'overlap', data: $_t});
+	// }
 	// 清空队列
-	$t.queue_entity.move = [];
+	$t.queue.move = [];
 
 
 	// 处理攻击
-	if($t.queue_entity.disable_attack === false && $t.queue_entity.attack === true){
-		$t.queue_entity.attack = false;
+	if($t.queue.disable_attack === false && $t.queue.attack === true){
+		$t.queue.attack = false;
 		// 遍历当前碰撞的实体
-		$t.queue_entity.overlap.forEach((e) => {
+		$t.queue.overlap.forEach((e) => {
 			// 事件
 			_event(['attack', e]);
 		});
@@ -469,10 +375,6 @@ function _loop_ui(){
 				$c.entity[$c.player.id].place[1] += $place[1];
 				$c.entity[$c.player.id].place[3] = $place[3];
 
-				// 背景层 = 反向的玩家的移动方向
-				// $c.layer.backdrop[0] -= $place[0];
-				// $c.layer.backdrop[1] -= $place[1];
-
 				// 实时更新
 				update_place_to_player();		// 玩家位置
 				update_place_to_background();	// 背景相对玩家位置
@@ -485,10 +387,14 @@ function _loop_ui(){
 				}
 
 				// 发送给服务器
-				$t.queue_net['WASD'] = {
+				$w.postMessage({type: 'queue_net', key: 'WASD', data: {
 					type: 'playerMove',
 					place: $c.entity[$c.player.id].place,
-				};
+				}});
+				// $t.queue_net['WASD'] = {
+				// 	type: 'playerMove',
+				// 	place: $c.entity[$c.player.id].place,
+				// };
 
 				// 触发玩家移动事件
 				//__player_move();
@@ -508,9 +414,9 @@ function _loop_ui(){
 
 
 	// 窗口尺寸变化事件
-	if($t.window.reRenderForWindowSize === true){
-		reRenderForWindowSize = false;
+	if($t.queue.reRenderForWindowSize === true){
 		update_place_to_background();
+		$t.queue.reRenderForWindowSize = false;
 	}
 
 	// F3 调试界面启用
@@ -522,18 +428,18 @@ function _loop_ui(){
 			if($t.F3.update === true){
 				// 渲染调试信息
 				let $iM = `
-					<p title="[宽, 高]">视窗尺寸: [${getClientWidthHeight()}]</p>
+					<p title="[宽, 高]">视窗尺寸: [${[document.documentElement.clientWidth, document.documentElement.clientHeight]}]</p>
 
 					<br />
-					<p>MSPT: UI:${$c.time.mspt_ui}/${$c.loop._ui_time}, MAIN:${$c.time.mspt_tps}/${$c.loop._tps_time}, NET:${$c.time.mspt_net}/${$c.loop._net_time}. SERVER:${$c.time.mspt_server} (ms)</p>
+					<p>MSPT: UI:${$c.time.mspt_ui}/${$c.loop._ui_time}, MAIN:${$c.time.mspt_tps}/${$c.loop._tps_time}. SERVER:${$c.time.mspt_server} (ms)</p>
 					<p>DOM数量: ${document.querySelectorAll('*').length}</p>
 					<p>内存占用: ${Math.round(window.performance.memory.usedJSHeapSize / 1024)}KB / ${Math.round(window.performance.memory.totalJSHeapSize / 1024)}KB (Data: ${Math.round((JSON.stringify($c).length + JSON.stringify($c).length) / 1024)}KB)</p>
 					<p>相对时间: ${Math.round(performance.now())}ms</p>
 
 					<br />
-					<p>玩家信息: <span title="[x(+left), y(-top), z(未定义), y(偏航角), p(俯仰角)]">PLACE:[${$c.entity[$c.player.id].place}]. NAME:${filter($c.player.name)}, ID:${$c.player.id}, KEY:${$c.player.key}</span></p>
-					<p>玩家碰撞队列: [${$t.queue_entity.overlap}]</p>
-					<p>实体移动队列: [${$t.queue_entity.move}]</p>
+					<p>玩家信息: <span title="[x(+left), y(-top), z(未定义), y(偏航角), p(俯仰角)]">ID:'${$c.player.id}', PLACE:[${$c.entity[$c.player.id].place}]</span></p>
+					<p>玩家碰撞队列: [${$t.queue.overlap}]</p>
+					<p>实体移动队列: [${$t.queue.move}]</p>
 				`;
 				// 如果与上一个不同就渲染
 				if(geb('F3_info').innerHTML !== $iM){
@@ -557,6 +463,8 @@ function main($tp, $serverTime){
 		// 将服务器分配的玩家id保存下来
 		$c.player.id = $tp.id;
 		$c.player.key = $tp.key;
+		// 同步到worker线程
+		$w.postMessage({type: 'add_$c.player', data: $c.player});
 	}else
 
 	if($tp.type === 'info'){ // 显示提示信息
@@ -594,18 +502,17 @@ function main($tp, $serverTime){
 			}
 		}
 
-		// 遍历消息列表
 		geb('message-list').innerHTML = '';
+		// 遍历消息列表
 		$tp.data.message.forEach((e) => {
-			main({
-				type: 'message', type_message: 'old',
-				message: e,
-			});
+			// 渲染一条旧消息
+			addMessage(e[0], e[1], {class: 'old'});
 		});
-		// main({
-		// 	type: 'message', type_message: 'old',
-		// 	message: '--- 以上为历史消息 ---',
-		// });
+		if($tp.data.message.length === 0){
+			addMessage('看上去没有旧的消息呢', '', {class: 'old flat center'});
+		}else{
+			addMessage('以上为历史消息', '', {class: 'old flat center'});
+		}
 
 		// 启动循环
 		_loop('tps', true);
@@ -613,31 +520,15 @@ function main($tp, $serverTime){
 	}else
 
 	if($tp.type === 'playerMove'){ // 玩家移动
-		let $need = false;
-		// 判断是不是自己
-		if($tp.id === $c.player.id){
-			// 判断坐标差异是否大于这一段时间的最大移动距离
-			let $_maxRange = ($funcStartTime - $serverTime) / 30 * (13 + 2) + 100;
-			//console.log($_maxRange, $c.entity[$c.player.id].place[0] - $tp.place[0]);
-			if(Math.abs($c.entity[$c.player.id].place[0] - $tp.place[0]) > $_maxRange
-			|| Math.abs($c.entity[$c.player.id].place[1] - $tp.place[1]) > $_maxRange
-			|| Math.abs($c.entity[$c.player.id].place[2] - $tp.place[2]) > $_maxRange
-			){
-				// 应用服务器的坐标
-				// $need = true;
-			}
-		}else{
-			$need = true;
-		}
+		// 更新数据
+		$c.entity[$tp.id].place = $tp.place;
+		// 渲染
+		update_place_to_player($tp.id);
 
-		if($need === true){
-			// 更新数据
-			$c.entity[$tp.id].place = $tp.place;
-			// $c.layer.backdrop[0] = $tp.place[0];
-			// $c.layer.backdrop[1] = $tp.place[1];
-			// 渲染
-			update_place_to_player($tp.id);
-			// update_place_to_background();
+		// 如果是自己
+		if($tp.id === $c.player.id){
+			// 更新背景层
+			update_place_to_background();
 		}
 	}else
 
@@ -653,18 +544,12 @@ function main($tp, $serverTime){
 		}
 
 		// 玩家加入消息
-		main({
-			type: 'message', type_message: 'new',
-			message: 'SERVER > '+ $tp.data.name +'加入了服务器',
-		});
+		addMessage($tp.data.name, '加入了服务器', {class: 'new player_join'});
 	}else
 
 	if($tp.type === 'playerQuit'){ // 玩家退出
 		// 玩家退出消息
-		main({
-			type: 'message', type_message: 'new',
-			message: 'SERVER > '+ $c.entity[$tp.id].name +'跑了',
-		});
+		addMessage($c.entity[$tp.id].name, '跑了', {class: 'new player_quit'});
 
 		// 如果客户端有这个实体
 		if(typeof $c.entity[$tp.id] === 'object'){
@@ -672,8 +557,8 @@ function main($tp, $serverTime){
 			delete $c.entity[$tp.id];
 			$c.index_entity.type.player.splice($c.index_entity.type.player.indexOf($tp.id), 1);
 			// 从缓存中删除
-			if($t.queue_entity.move.indexOf($tp.id) !== -1) $t.queue_entity.move.splice($t.queue_entity.move.indexOf($tp.id), 1);
-			if($t.queue_entity.overlap.indexOf($tp.id) !== -1) $t.queue_entity.overlap.splice($t.queue_entity.overlap.indexOf($tp.id), 1);
+			if($t.queue.move.indexOf($tp.id) !== -1) $t.queue.move.splice($t.queue.move.indexOf($tp.id), 1);
+			if($t.queue.overlap.indexOf($tp.id) !== -1) $t.queue.overlap.splice($t.queue.overlap.indexOf($tp.id), 1);
 			// 删除dom
 			geb('all-player').removeChild(geb($tp.id));
 		}
@@ -681,15 +566,21 @@ function main($tp, $serverTime){
 
 	if($tp.type === 'message'){ // 渲染一条消息
 		if($tp.type_message === 'player'){ // 玩家发送消息
-			addMessage($c.entity[$tp.id].name +' > '+ $tp.message);
+			// 如果页面后台运行
+			if(document.visibilityState === 'hidden'){
+				// 创建消息通知
+				// _Notification($c.entity[$tp.id].name, $tp.message);
+				addMessage($c.entity[$tp.id].name, $tp.message, {
+					playerID: $tp.id,
+					notification: true,
+				});
+			}else{
+				addMessage($c.entity[$tp.id].name, $tp.message, {playerID: $tp.id});
+			}
 		}else
 
-		if($tp.type_message === 'old'){ // 旧消息
-			addMessage($tp.message, 'old');
-		}else
-
-		if($tp.type_message === 'new'){ // 新消息
-			addMessage($tp.message);
+		if($tp.type_message === 'system'){ // 渲染系统消息数组
+			addMessage($tp.message[0], $tp.message[1], $tp.message[2]);
 		}
 	}else
 
@@ -701,81 +592,9 @@ function main($tp, $serverTime){
 		// 记录mspt
 		$c.time.mspt_server = $tp.mspt;
 	}
-
-	// if($tp.type === 'reply-Heartbeat'){ // 心跳
-	// 	if($tp.data === 'NO'){
-	// 		// 重新连接
-	// 		reconnect();
-	// 	}
-	// }else
-
-	// if($tp.type === 'player-join'){ // 玩家加入
-	// 	// 渲染玩家
-	// 	geb('all-player').innerHTML += render_player($tp);
-	// 	__player_move();
-	// 	$c.server.players.push($tp.name);
-	// }else
-
-	// if($tp.type === 'mob-produce'){ // 怪物生成
-	// 	// 渲染
-	// 	geb('all-player').innerHTML += render_mob($tp);
-	// 	__player_move();
-	// }
-
-	// if($tp.type === 'player-quit'){ // 玩家退出
-	// 	geb('all-player').removeChild(geb('player-'+ $tp.id));
-	// 	__player_move();
-	// 	$c.server.players.splice($c.server.players.indexOf($tp.name), 1)
-	// }else
-
-	// if($tp.type === 'Broadcast-message'){ // 广播消息
-	// 	// 将消息显示到聊天栏
-	// 	addMessage(`${$tp.name} > ${$tp.message}`);
-	// }else
-
-	// if($tp.type === 'sync-coordinate'){ // 玩家移动
-	// 	geb('player-'+ $tp.id).style.top = $tp.place[0] + 'px';
-	// 	geb('player-'+ $tp.id).style.left = $tp.place[1] + 'px';
-	// 	geb('player-'+ $tp.id).dataset.direction = $tp.direction;
-	// 	__player_move();
-
-	// }else
-
-	// if($tp.type === 'mob-move'){ // 怪物移动
-	// 	geb('mob-'+ $tp.id).style.top = $tp.place[0] + 'px';
-	// 	geb('mob-'+ $tp.id).style.left = $tp.place[1] + 'px';
-	// 	__player_move();
-
-	// }else
-
-	// if($tp.type === 'tpsbar'){ // 同步 Tpsbar
-	// 	let $mspt = $tp.mspt;
-	// 	let $tps = Math.min(20, 1000/$mspt);
-	// 	let $ping = $funcStartTime - $tp.time;
-
-	// 	geb('tpsbar').innerHTML = render_tpsbar($tps, $mspt, $ping);
-
-	// 	$t.server_mspt = $mspt;
-	// }else
-
-	// if($tp.type === 'player-attack'){ // 玩家被攻击
-	// 	// 显示攻击动效
-	// 	let $dom = geb('player-'+ $tp.victim_id);
-	// 	$dom.classList.add('-victim');
-	// 	setTimeout(function(){
-	// 		$dom.classList.remove('-victim');
-	// 	}, 200);
-	// }else
-
-	// if($tp.type === 'mob-attack'){ // 怪物攻击玩家
-	// 	// 显示攻击动效1
-	// 	let $dom = geb('player-'+ $tp.victim_id);
-	// 	$dom.classList.add('-victim');
-	// 	setTimeout(function(){
-	// 		$dom.classList.remove('-victim');
-	// 	}, 200);
-	// }
 };
+
+
 
 // 数据发送主程序
 function main_send($tp){
@@ -787,19 +606,27 @@ function main_send($tp){
 			return false;
 		}
 		// 创建消息发送
-		$t.queue_net['sendMessage'+ $funcStartTime] = {
+		$w.postMessage({type: 'queue_net', key: 'sendMessage'+ $funcStartTime, data: {
 			type: 'sendMessage',
 			message: geb('message-input').value,
-		};
+		}});
+		// $t.queue_net['sendMessage'+ $funcStartTime] = {
+		// 	type: 'sendMessage',
+		// 	message: geb('message-input').value,
+		// };
 		// 清空输入框
 		geb('message-input').value = '';
 	}else
 
 	if($tp.type === 'reg'){ // 注册玩家
-		$t.queue_net['reg'] = {
+		$w.postMessage({type: 'queue_net', key: 'reg', data: {
 			type: 'reg',
 			name: $c.player.name,
-		};
+		}});
+		// $t.queue_net['reg'] = {
+		// 	type: 'reg',
+		// 	name: $c.player.name,
+		// };
 	}
 
 };
@@ -1156,53 +983,65 @@ function main_cope($tp){
 
 };
 
-// 键盘按下事件
-function _document_onkeydown(event){
+// 键盘按下事件 // ~~不能异步, 否则无法屏蔽按键~~
+async function _document_onkeydown(event){
 	event = event || window.event;
 	// console.log("按钮按下", event);
 
 	if(event.code === 'Tab'){
-		// 显示玩家名称和数量
-		let $iM = '';
-		// 遍历实体索引
-		for(let key in $c.index_entity.type){
-			// 添加实体类型
-			$iM += '<p class="title" title="实体类型">'+ key +': </p>';
-			// 遍历此类型的实体
-			$c.index_entity.type[key].forEach((e) => {
-				// 添加实体名称
-				$iM += '<p class="main" title="id='+ e +'">'+ filter($c.entity[e].name) +'</p>';
-			});
+		event.preventDefault();
+		// 其他组件
+		if($t.message.enable === true){ // 聊天组件
+			
+		}else{ // 没有组件, 显示玩家列表
+			// 显示玩家名称和数量
+			let $iM = '';
+			// 遍历实体索引
+			for(let key in $c.index_entity.type){
+				// 添加实体类型
+				$iM += '<p class="title" title="实体类型">'+ key +': </p>';
+				// 遍历此类型的实体
+				$c.index_entity.type[key].forEach((e) => {
+					// 添加实体名称
+					$iM += '<p class="main" title="id='+ e +'">'+ filter($c.entity[e].name) +'</p>';
+				});
+			}
+			// 渲染消息
+			geb('key-tab').innerHTML = $iM;
+			geb('key-tab').style.display = 'block';
 		}
-		// 渲染消息
-		geb('key-tab').innerHTML = $iM;
-		geb('key-tab').style.display = 'block';
 
-		return false;
 	}else
 
-	// 屏蔽F3
+	// 屏蔽浏览器默认的F3功能键
 	if(event.code === 'F3'){
 		event.preventDefault();
-	}
+	}else
+
 
 	// 4个方向键
 	if(['KeyW', 'KeyA', 'KeyS', 'KeyD'].indexOf(event.code) !== -1){
-		if($t.message.enable === true) return;
-		$t.WASD.keyboard[event.code] = true;
-		$t.WASD.enable = true;
+		// 使用键盘操作
+		if($t.WASD.isKeyboard === true){
+			if($t.message.enable === true) return;
+			$t.WASD.keyboard[event.code] = true;
+			$t.WASD.enable = true;
+		}
 	}
+
 
 };
 // 按键松开事件
-function _document_onkeyup(event){
+async function _document_onkeyup(event){
 	event = event || window.event;
 	// console.log("按钮按下", event);
 
 	// ESC
 	if(event.code === 'Escape'){
+		// 聊天组件
 		if($t.message.enable === true){
-			openMessageDom(false);
+			$t.message.enable = false;
+			geb('message').classList.remove('-open');
 		}
 	}else
 
@@ -1215,43 +1054,60 @@ function _document_onkeyup(event){
 	if(event.code === 'F3'){
 		$t.F3.enable = ($t.F3.enable === true)? false : true;
 		geb('F3').style.display = ($t.F3.enable === true)? 'block' : 'none';
-		if($t.F3.enable === true){geb('all-player').classList.add('-debug')}else{geb('all-player').classList.remove('-debug')}
+		if($t.F3.enable === true){
+			geb('all-player').classList.add('-debug');
+			geb('background').classList.add('-debug');
+		}else{
+			geb('all-player').classList.remove('-debug');
+			geb('background').classList.remove('-debug');
+		}
 	}else
 
 	// 聊天组件
-	if(event.code === 'KeyT'){
-		openMessageDom(true);
+	if(event.code === 'KeyT' || event.code === 'Backspace'){
+		// 如果已经打开则不重复运行
+		if($t.message.enable === false){
+			$t.message.enable = true;
+			geb('message').classList.add('-open');
+			geb('message-input').focus();
+			// 滚动到底部
+			geb('message-list').scrollTop = geb('message-list').scrollHeight;
+		}
 	}else
+
 
 
 	// 4个方向键, 移动
 	if(['KeyW', 'KeyA', 'KeyS', 'KeyD'].indexOf(event.code) !== -1){
-		$t.WASD.keyboard[event.code] = false;
-		// 松开时判断是否所有按键都松开
-		let $key = false;
-		for(let key in $t.WASD.keyboard){
-			if($t.WASD.keyboard[key] === true){
-				$key = true;
-				return;
+		// 使用键盘操作
+		if($t.WASD.isKeyboard === true){
+			$t.WASD.keyboard[event.code] = false;
+			// 松开时判断是否所有按键都松开
+			let $key = false;
+			for(let key in $t.WASD.keyboard){
+				if($t.WASD.keyboard[key] === true){
+					$key = true;
+					return;
+				}
 			}
-		}
-		$t.WASD.enable = $key;
+			$t.WASD.enable = $key;
 
-		if($t.npc_func.decision.enable === true){ // 是否由"玩家选择组件"接管移动事件
-			// 通过键盘上下键移动指针
-			if(event.code === 'KeyW') $t.npc_func.decision.pointer --;
-			if(event.code === 'KeyS') $t.npc_func.decision.pointer ++;
-			// 判断指针是否超出范围
-			if($t.npc_func.decision.pointer < 0){
-				$t.npc_func.decision.pointer = $t.npc_func.decision.id_list.length - 1;
-			}else if($t.npc_func.decision.pointer > $t.npc_func.decision.id_list.length - 1){
-				$t.npc_func.decision.pointer = 0;
+			if($t.npc_func.decision.enable === true){ // 是否由"玩家选择组件"接管移动事件
+				// 通过键盘上下键移动指针
+				if(event.code === 'KeyW') $t.npc_func.decision.pointer --;
+				if(event.code === 'KeyS') $t.npc_func.decision.pointer ++;
+				// 判断指针是否超出范围
+				if($t.npc_func.decision.pointer < 0){
+					$t.npc_func.decision.pointer = $t.npc_func.decision.id_list.length - 1;
+				}else if($t.npc_func.decision.pointer > $t.npc_func.decision.id_list.length - 1){
+					$t.npc_func.decision.pointer = 0;
+				}
+				// 获取指针指向的dom
+				main_cope({
+					type: 'decision_click',
+					this: geb('decision').querySelectorAll('p')[$t.npc_func.decision.pointer]
+				})
 			}
-			// 获取指针指向的dom
-			main_cope({
-				type: 'decision_click',
-				this: geb('decision').querySelectorAll('p')[$t.npc_func.decision.pointer]
-			})
 		}
 	}else
 
@@ -1260,7 +1116,7 @@ function _document_onkeyup(event){
 		// 前置不兼容
 		if($t.message.enable === true) return;
 		// 创建攻击任务
-		$t.queue_entity.attack = true;
+		$t.queue.attack = true;
 	}
 };
 

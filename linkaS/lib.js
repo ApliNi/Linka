@@ -1,5 +1,7 @@
-// 获取全局变量
+const log = require('./plugins/log.js');
+const db = require('./plugins/db.js');
 
+// 基础库
 
 // 生成唯一id
 function uuid($m = ''){
@@ -22,20 +24,27 @@ function toJSON($i){
 // 注销并删除一个客户端
 function logoutClient($id){
 	// 判断这个客户端还在不在
-	if(typeof $c.entity[$id]?.ws === 'object'){
+	if(db.get({id: $id})?.ws){
 		// 注销ws
-		$c.entity[$id].ws.terminate();
+		try{
+			db.get({id: $id}).ws.terminate();
+		}catch(error){
+			log.out('ERROR', '[注销] 玩家 WebSocket 注销失败. 可能存在过期数据库!');
+		}
 	}
-	if(typeof $c.entity[$id] === 'object'){
-		// 删除数据和索引
-		delete $c.entity[$id];
-		$c.index_entity.type.player.splice($c.index_entity.type.player.indexOf($id), 1);
+	if(db.get({id: $id})){
 		// 广播玩家退出
 		to_queue_net('_ALL_', 'playerQuit-'+ $id, {
 			type: 'playerQuit',
 			id: $id,
 		});
-		console.log('玩家退出: '+ $id);
+
+		log.out('INFO', '[注销] '+ db.get({id: $id}).name +' 已退出服务器');
+
+		// 删除数据
+		db.del({id: $id});
+
+		$c.system.playerNum --;
 	}
 };
 
@@ -110,10 +119,9 @@ function getSyncDataAll(){
 		},
 	};
 	// 遍历服务器的实体
-	for(let key in $c.entity){
-		let e = $c.entity[key];
+	db.get({}, true).forEach((e) => {
 		if(e.type === 'player'){ // 玩家
-			$arr.entity[key] = {
+			$arr.entity[e.id] = {
 				type: e.type,
 				id: e.id,
 				name: e?.name || '',
@@ -121,12 +129,11 @@ function getSyncDataAll(){
 			};
 		}else
 		if(e.type === 'npc'){ // npc
-			$arr.entity[key] = e;
+			$arr.entity[e.id] = e;
 		}
+	});
 
-	}
-
-	// 添加消息列表
+	// 添加旧消息
 	$arr.message = $t.message;
 
 	return $arr;
@@ -134,19 +141,21 @@ function getSyncDataAll(){
 
 // 获取单个玩家的同步数据
 function getSyncDataPlayer($id){
+	let $player = db.get({id: $id});
 	return {
-		type: $c.entity[$id].type,
-		id: $c.entity[$id].id,
-		name: $c.entity[$id].name,
-		place: $c.entity[$id].place,
+		type: $player.type,
+		id: $player.id,
+		name: $player.name,
+		place: $player.place,
 	};
 };
 
 // 判断服务器中是否有这个玩家, 以及密钥是否正确
 function enter_playerOK($tp){
-	if(typeof $c.entity[$tp.id] === 'object'	// 判断服务器中是否有这个实体id
-	&& $c.entity[$tp.id].type === 'player'		// 判断这个实体是不是玩家
-	&& $c.entity[$tp.id].key === $tp.key		// 判断通讯密钥是否正确
+	let $player = db.get({id: $tp.$id});
+	if($player !== undefined		// 判断服务器中是否有这个实体id
+	&& $player.type === 'player'	// 判断这个实体是不是玩家
+	&& $player.key === $tp.key		// 判断通讯密钥是否正确
 	){
 		return true;
 	}

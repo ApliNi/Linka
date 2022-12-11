@@ -20,13 +20,13 @@ function fromUrl($name){
 function filter($i){return String($i).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')};
 
 // 获取网页宽高
-function getClientWidthHeight(){
-	return [
-		document.documentElement.clientWidth,
-		document.documentElement.clientHeight,
-	];
-	//return [0, 0];
-};
+// function getClientWidthHeight(){
+// 	return [
+// 		document.documentElement.clientWidth,
+// 		document.documentElement.clientHeight,
+// 	];
+// 	//return [0, 0];
+// };
 
 // 渲染 Tpsbar
 async function render_tpsbar($mspt, $ping){
@@ -43,7 +43,7 @@ async function render_tpsbar($mspt, $ping){
 	`;
 };
 
-// 通过服务器同步数据创建实体dom
+// 创建一个实体
 async function render_entity($tp){
 
 	// 创建实体主dom
@@ -62,16 +62,30 @@ async function render_entity($tp){
 		$dom2.setAttribute('class', 'debug attackRange');
 	$dom.appendChild($dom2);
 
-	// 内容dom
+	// 消息dom
 	$dom2 = document.createElement('div');
 		$dom2.setAttribute('class', 'top_text');
 
-	// 往内容dom中插入名称
+	// 往消息dom中插入名称
 	let $dom3 = document.createElement('span');
-		$dom3.setAttribute('class', 'name -join');
+		$dom3.setAttribute('class', 'name');
 		$dom3.innerText = $tp.name; // filter()
 
+	// 往名称dom中插入头像
+	// let $dom4 = document.createElement('div');
+	// 	$dom4.setAttribute('class', 'img');
+	// 	// $dom4.setAttribute('src', 'https://ipacel.cc/api/skin/'+ filter($tp.name) +'.png');
+	// 	// $dom4.setAttribute('onerror', 'this.style.display = "none"');
+	// 	$dom4.style.backgroundImage = 'url(https://ipacel.cc/api/skin/'+ filter($tp.name) +'.png';
+	// $dom3.appendChild($dom4);
+
 	$dom2.appendChild($dom3);
+
+	// 插入聊天气泡框
+	$dom3 = document.createElement('span');
+		$dom3.setAttribute('class', 'message -quit');
+	$dom2.appendChild($dom3);
+
 	$dom.appendChild($dom2);
 
 	// 渲染到实体层
@@ -99,8 +113,8 @@ async function update_place_to_player($entity = ''){
 	geb($id).getElementsByClassName('debug yawAngle')[0].style.transform = 'rotate('+ ($c.entity[$id].place[3] - 90) +'deg)';
 
 	// 添加到实体移动队列
-	if($t.queue_entity.move.indexOf($id) === -1){
-		$t.queue_entity.move.push($id);
+	if($t.queue.move.indexOf($id) === -1){
+		$t.queue.move.push($id);
 	}
 
 	return true;
@@ -122,8 +136,8 @@ async function update_place_to_background(){
 	// 注意!!! css的top是反方向的y轴, 赋值时使用 0-y 即可
 
 	let $xy = [
-		(getClientWidthHeight()[0] / 2 + (0 - $c.entity[$c.player.id]?.place[0] || 0)) + 'px',
-		0 - (0 - getClientWidthHeight()[1] / 2 + (0 - $c.entity[$c.player.id]?.place[1] || 0)) + 'px',
+		(document.documentElement.clientWidth / 2 + (0 - $c.entity[$c.player.id]?.place[0] || 0)) + 'px',
+		0 - (0 - document.documentElement.clientHeight / 2 + (0 - $c.entity[$c.player.id]?.place[1] || 0)) + 'px',
 	];
 
 	geb('all-player').style.left = $xy[0];
@@ -138,7 +152,6 @@ function delEntityAll(){
 };
 
 
-// 对比两个矩形实体是否重叠, inp(矩形中心坐标, [39, 39], 攻击范围直径)
 // 判断一个坐标是否在一个矩形范围内, (矩形中心坐标, 矩形半径, 判断的坐标)
 function isOverlap(p1, d, p2){
 	if(p1[0] + d > p2[0]
@@ -150,30 +163,59 @@ function isOverlap(p1, d, p2){
 };
 
 // 显示消息到聊天框
-async function addMessage($m, $class = 'new'){
-	// 删除旧消息
-	let $dom = geb('message-list').getElementsByTagName('p');
-	for(let key = 0; $dom.length >= 256; key++){ // 256条消息
-		$dom[key].remove();
-		console.log(1);
+// $m1 = 不需要特殊处理的消息, 比如玩家名/消息前缀; $m2 = 消息内容
+async function addMessage($m1, $m2, $tp){
+	$tp = {
+		class: $tp.class || 'new',
+		playerID: $tp.playerID || '',
+		notification: $tp.notification || false,
 	}
-	let $p = document.createElement('p');
-		$p.setAttribute('class', $class);
-		$p.innerHTML = `<span>${filter($m)}</span>`;
-	geb('message-list').appendChild($p);
-};
+	// 删除一条旧消息, 如果有的话
+	let $dom = geb('message-list').getElementsByTagName('p');
+	for(let key = 0; $dom.length >= 256; key++){ // 删除256条之前的
+		$dom[key].remove();
+	}
+	// 解析消息中的特殊文本
+	$m2 = filter($m2);
+	$m2 = $m2
+		// 图片 `![描述](url)` // loading="lazy"
+		.replace(/\!\[(.*)?\]\((https?\:\/\/[0-9a-zA-Z](?:[-.\w]*[0-9a-zA-Z])*(?::(0-9)*)*(?:\/?)(?:[a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%$#_\=]*)?)\s?(?:\s+\"(.*)\")?\)/gi, '<img alt="$1" src="$2" title="$3" />')
+		// URL
+		.replace(/((?<!src=")(https?\:\/\/[0-9a-zA-Z](?:[-.\w]*[0-9a-zA-Z])*(?::(0-9)*)*(?:\/?)(?:[a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%$#_\=]*)?)(?!\"))/gi, '<a href="$1" target="_blank">$1</a>')
+		// 反斜杠转义字符
+		.replace(/\\(.{1})/gi, '$1')
+	;
 
-// 打开或关闭聊天组件
-async function openMessageDom($mode){
-	if($mode === true){
-		$t.message.enable = true;
-		geb('message').classList.add('-open');
-		geb('message-input').focus();
-		// 滚动到底部
-		geb('message-list').scrollTop = geb('message-list').scrollHeight;
-	}else{
-		$t.message.enable = false;
-		geb('message').classList.remove('-open');
+	// 创建消息dom
+	let $p = document.createElement('p');
+		$p.setAttribute('class', $tp.class);
+		$p.innerHTML = `<span class="m1"><span class="name">${filter($m1)}</span></span><span class="m2">${$m2}</span>`;
+	geb('message-list').appendChild($p);
+
+	// 消息也在玩家名称上方显示
+	if($tp.playerID !== ''){
+		// 获取指定玩家的气泡框
+		let $dom = geb($tp.playerID).querySelector('.top_text > span.message');
+		// 如果气泡框已经打开
+		if($dom.classList.contains('-quit') === false){
+			// 关闭后填充消息再重新打开
+			$dom.classList.add('-quit');
+			setTimeout(function(){ // 延迟显示新消息
+				$dom.innerHTML = `<span class="m2">${$m2}</span>`;
+				$dom.classList.remove('-quit');
+			}, 100);
+		}else{
+			$dom.innerHTML = `<span class="m2">${$m2}</span>`;
+			$dom.classList.remove('-quit');
+		}
+		setTimeout(function(){
+			$dom.classList.add('-quit');
+		}, 4000);
+	}
+
+	// 桌面通知
+	if($tp.notification === true){
+		_Notification($m1, $m2);
 	}
 };
 
@@ -219,3 +261,24 @@ function btnSS($this){
 		return true;
 	}
 };
+
+//创建桌面通知
+function _Notification($title, $message, $clear = true){
+	Notification.requestPermission(($p) => { // 权限
+		if($p === 'granted'){
+			//弹出通知 //全局变量
+			let $id = new Notification($title, {
+				lang: 'zh-cmn-Hans',
+				icon: 'img/server-icon.png',
+				timestamp: Math.floor(Date.now()),
+				tag: 112, //通知标记 用于覆盖通知
+				silent: true, // 通知静音
+				body: $message,
+			});
+			// $clear = false 时不清除消息
+			if($clear) setTimeout(function(){$id.close()}, 10000);
+		}
+	});
+};
+// 请求权限
+if(Notification.permission !== 'granted') _Notification('消息通知', '当页面后台运行时, 您将在这里收到聊天消息');

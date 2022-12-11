@@ -51,8 +51,8 @@ if((isPE() === true || fromUrl('isPE') === 'true') && fromUrl('isPE') !== 'false
 			<div class="right_box">
 				<div>
 					<button class="btn" onclick="if(btnSS(this)){_sensor(true, this)}else{_sensor(false, this)}">陀螺仪</button>
-					<div class="btn side" title="重置当前位置为原点" data-onfunc="_sensorOrigin(true)" data-offfunc="_sensorOrigin(false)">R</div>
-					<span class="text">[重置陀螺仪原点]<br />调整到合适的角度后松开按键</span>
+					<div class="btn side" title="设置陀螺仪原点" data-onfunc="_sensorOrigin(true)" data-offfunc="_sensorOrigin(false)">R</div>
+					<span class="text">[设置陀螺仪原点]<br />调整到合适的角度后松开按键</span>
 				</div>
 				<div>
 					<!-- <button class="btn" onclick="btnSS(this)">加速度</button> -->
@@ -120,7 +120,7 @@ if((isPE() === true || fromUrl('isPE') === 'true') && fromUrl('isPE') !== 'false
 		}else
 
 		if($date?.onfunc){
-			console.log($date.onfunc);
+			// console.log($date.onfunc);
 			new Function($date.onfunc)();
 		}
 	};

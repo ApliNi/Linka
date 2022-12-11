@@ -7,6 +7,19 @@ body{
 
 	/* 禁用webkit内核浏览器文字大小调整功能: 解决ios文字大小不统一 */
 	-webkit-text-size-adjust: none;
+
+	/* 禁止选中文本 */
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	user-select: none;
+
+	/* 全局变量 */
+	--message_list_max_height: min(70vh, 640px); /* #message.-open > #message-list 的最大高度 */
+}
+.--user_select{
+	-webkit-touch-callout: text;
+	-webkit-user-select: text;
+	user-select: text;
 }
 
 /* 窗口dom */
@@ -15,187 +28,14 @@ body{
 	height: 100vh;
 }
 
-
-/* Tpsbar */
-#tpsbar{
-	position: fixed;
-	top: 14px;
-	left: calc(50% - 200px);
-	min-width: 400px;
-}
-#tpsbar:empty{
-	top: -50px;
-}
-#tpsbar > p{
-	text-align: center;
-	margin: 0px;
-}
-#tpsbar > div{
-	min-width: 400px;
-	max-width: 400px;
-	background-color: rgb(53, 87, 17);
-	height: 5px;
-}
-#tpsbar > div > div.a{
-	background-color: rgb(121, 255, 19);
-	height: 5px;
-}
-@media(max-width: 410px){
-	#tpsbar{
-		position: static;
-		min-width: 0px;
-	}
-	#tpsbar > div{
-		display: none;
-	}
-}
-
-/* 玩家列表 */
-#key-tab, #F3{
-	display: none;
-
-	position: fixed;
-	top: 47px;
-	left: calc(50% - 200px);
-
-	background-color: rgba(0, 0, 0, 0.2);
-	padding: 10px;
-	margin: 10px;
-}
-#key-tab > p{
-	margin: 0;
-	line-height: 23px;
-	font-size: 14px;
-}
-#key-tab > p.title{
-	margin-top: 10px;
-	font-size: 15px;
-	color: rgba(255, 255, 255, 0.486);
-}
-#key-tab > p.title:first-child{
-	margin-top: 0;
-}
-#key-tab > p.main{
-	margin-left: 23px;
-	line-height: 21px;
-	color: #fff;
-}
-
-/* F3 调试界面 */
-#F3{
-	top: 32px;
-	left: 10px;
-}
-#F3:hover{
-	background-color: rgba(0, 0, 0, 0.4);
-}
-#F3 p{
-	margin: 0;
-	color: #fff;
-}
-#F3 hr{
-	height: 2px;
-}
-
-#message{
-	width: 100%;
-	position: fixed;
-	bottom: 0;
-	padding: 3px;
-}
-#message > #message-list{
-	margin-bottom: 32px;
-	width: min(80%, 700px);
-	/* background-color: rgba(0, 0, 0, 0.32); */
-	position: absolute;
-	bottom: 0;
-	z-index: 1;
-}
-@media(max-width: 710px){
-	#message > #message-list{
-		width: 100%;
-	}
-}
-#message > #message-list > p{
-	margin: 0;
-	color: #fff;
-	background-color: rgba(0, 0, 0, 0.32);
-	padding: 4px 0 0 4px;
-}
-#message > #message-list > p.new{
-	transition: all 0s;
-	opacity: 0;
-	height: 0;
-	padding-top: 0;
-	animation: newMessage 8s;
-}
-#message > #message-list > p.old{
-	transition: all 0s;
-	opacity: 0; height: 0; padding-top: 0;
-	color: #ddd;
-}
-@keyframes newMessage{
-	0% {opacity: 1; height: auto; padding-top: 4px;}
-	80% {opacity: 1; height: auto; padding-top: 4px;}
-	99% {opacity: 0; height: auto; padding-top: 4px;}
-	100% {opacity: 0; height: 0; padding-top: 0;}
-}
-#message.-open > #message-list{
-	max-height: min(70vh, 400px);
-	overflow-y: scroll;
-	background-color: rgba(0, 0, 0, 0.32);
-}
-#message.-open > #message-list > p{
-	opacity: 1;
-	height: auto;
-	padding-top: 4px;
-	background-color: transparent;
-}
-#message.-open > #message-list::-webkit-scrollbar-thumb{
-	background: rgba(0, 0, 0, 0.7);
-}
-#message.-open > #message-list::-webkit-scrollbar-track{
-	background: rgba(0, 0, 0, 0.32);
-}
-#message > .message_input_bc{
-	display: none;
-	width: calc(100% - 64px);
-	height: 26px; /* 输入框高度 */
-	background-color: rgba(0, 0, 0, 0.47);
-	text-align: right;
-}
-#message > .message_input_bc > .btn{
-	margin: 0;
-	height: 26px;
-	width: 64px;
-	position: absolute;
-	z-index: 1;
-}
-#message.-open > .message_input_bc{
-	display: block;
-}
-#message > input{
-	display: none;
-	position: absolute;
-	bottom: 0;
-	padding: 100vh 74px 7px 4px;
-	background-color: transparent;
-
-	width: 100%;
-	border: none;
-	outline: none;
-	color: #fff;
-}
-#message.-open > input{
-	display: block;
-}
-
-
-
 .moveFollowLayer{
-	width: max-content;
-	position: fixed;
+	/* width: max-content; */
+	position: absolute;
 	transition: all 1600ms cubic-bezier(0, 0.6, 0.64, 1);
+}
+.moveFollowLayer > div{
+	position: absolute;
+	width: max-content;
 }
 @keyframes opacity_fadeIn{
 	0%{opacity: 0}
@@ -205,8 +45,28 @@ body{
 	0%{transform: translate(0, 50px)}
 	100%{transform: translate(0, 0px)}
 } */
+#all-player{
+	z-index: 20;
+}
+#all-player > div > *{
+	/* content-visibility: auto; */
+}
 #background{
+	/* z-index: 10; */
 	animation: 1s opacity_fadeIn;
+}
+/* !!实验性提升性能!! css实体剔除 */
+#background > div > *{
+	/* content-visibility: auto; */
+}
+#background.-debug *{
+	outline: solid 1px rgb(0, 238, 255);
+}
+#background.-debug *.---within{
+	outline: solid 1px rgb(255, 0, 0);
+}
+#background.-debug > *{
+	outline: solid 1px rgb(0, 34, 255);
 }
 #background .logo{
 	display: inline-block;
@@ -279,13 +139,24 @@ body{
 	flex-direction: column-reverse;
 	align-items: center;
 }
-#all-player > .entity > .top_text > span{
+#all-player > .entity > .top_text > span{ /* 名称和对话消息的样式 */
 	width: max-content;
-	background-color: #00000075;
+	height: 21px;
+	background-color: rgb(0 0 0 / 47%);
 	color: #fff;
 	padding: 2px 7px 0 7px;
 	margin-top: 7px;
+	display: flex;
 }
+/* #all-player > .entity > .top_text > .name > .img{
+	position: absolute;
+	bottom: 0;
+	margin-left: -32px;
+	width: 21px;
+	height: 21px;
+	background-size: cover;
+	image-rendering: pixelated;
+} */
 @keyframes top_text_join{
 	0% {
 		opacity: 0;
@@ -308,7 +179,6 @@ body{
 }
 #all-player > .entity > .top_text > span{
 	animation: 0.4s top_text_join forwards;
-
 }
 #all-player > .entity > .top_text > span.-quit{
 	animation: 0.4s top_text_quit forwards;
@@ -354,69 +224,5 @@ body{
 }
 
 
-/* 玩家选择消息 */
-#decision{
-	transition: all 0.4s;
-	opacity: 0;
-	position: fixed;
-	bottom: 15vh;
-	left: calc(50% - 200px);
-	margin-bottom: -20px;
-}
-#decision.-join{
-	opacity: 1;
-	margin-bottom: 0;
-}
-#decision.-join::after{
-	content: attr(title);
-	position: fixed;
-	bottom: 10%;
-	left: 0;
-	margin: 5px;
-}
-#decision > p{
-	text-align: center;
-	width: 400px;
-	margin: 25px 0 0 0;
-	padding: 5px 10px;
-	background-color: var(--a0);
-	border-top: 3px solid var(--c);
-	box-shadow: 0 15px 35px rgb(50 50 93 / 10%), 0 5px 15px rgb(0 0 0 / 7%);
-	outline: 1px solid var(--t);
-}
-#decision > p::after,
-#decision > p::before{
-	content: "";
-	position: absolute;
-	width: 10px;
-	height: 10px;
-	border-top: 5px solid var(--e);
-	border-left: 5px solid var(--e);
-	margin: 3px;
-	transform: rotate(270deg);
-	transition: all 0.2s;
-	right: -47px;
-	opacity: 0;
-}
-#decision > p::before{
-	width: 15px;
-	height: 15px;
-	right: 0;
-	left: -47px;
-	transform: rotate(90deg);
-}
-#decision > p.-join{
-	border-top: 3px solid var(--e);
-	box-shadow: 0 15px 35px 7px rgb(50 50 93 / 10%), 0 5px 15px rgb(0 0 0 / 7%);
-}
-#decision > p.-join::after{
-	right: -32px;
-	opacity: 1;
-	transform: rotate(315deg);
-}
-#decision > p.-join::before{
-	left: -32px;
-	opacity: 1;
-	transform: rotate(135deg);
-}
+
 

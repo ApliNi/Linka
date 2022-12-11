@@ -239,7 +239,7 @@ $c.entity = {
 		style: [
 			{
 				type: 'addDom',
-				dom: `<img class="---img_nodejs" style="width: 47px;position: relative;top: -5px;right: -25px;transform: rotate(98deg);" src="https://cdn.ipacamod.cc/api/v3/file/get/8133/nodejs.png?sign=7uLV8TcBBjgH-JVjCDul7FnOm4REIhZ4W5Rtf9-ykj4%3D%3A0">`,
+				dom: `<img class="---img_nodejs" style="width: 47px;height: 47px;position: relative;top: -5px;right: -25px;transform: rotate(98deg);" src="https://cdn.ipacamod.cc/api/v3/file/get/8133/nodejs.png?sign=7uLV8TcBBjgH-JVjCDul7FnOm4REIhZ4W5Rtf9-ykj4%3D%3A0">`,
 			}
 		],
 	},
@@ -296,7 +296,7 @@ $c.entity = {
 		style: [
 			{
 				type: 'addDom',
-				dom: `<img class="---img_java" style="width: 47px;position: relative;top: -8px;right: 43px;" src="https://cdn.ipacamod.cc/api/v3/file/get/8132/java.png?sign=rKQucdvhr3FDVxrc_uDsb37698_0KllTJHF4ggt5rgY%3D%3A0">`,
+				dom: `<img class="---img_java" style="width: 47px;height: 47px;position: relative;top: -8px;right: 43px;" src="https://cdn.ipacamod.cc/api/v3/file/get/8132/java.png?sign=rKQucdvhr3FDVxrc_uDsb37698_0KllTJHF4ggt5rgY%3D%3A0">`,
 			}
 		],
 	},
