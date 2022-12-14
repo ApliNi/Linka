@@ -16,6 +16,7 @@ body{
 	/* 全局变量 */
 	--message_list_max_height: min(70vh, 640px); /* #message.-open > #message-list 的最大高度 */
 }
+
 .--user_select{
 	-webkit-touch-callout: text;
 	-webkit-user-select: text;

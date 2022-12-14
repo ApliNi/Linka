@@ -2,7 +2,8 @@
 let $c = {
 	net: {
 		interval_id: null,
-		lastSend: 0,
+		last_send: 0,	// 最后发送消息的时间
+		last_receive: 0,	// 最后收到消息的时间
 	},
 	loop: { // 循环指标 and 循环本体
 		_net_time: 62,
@@ -68,6 +69,8 @@ function start_ws(){
 	$ws.onmessage = function(e){
 		let $tp = JSON.parse(e.data);
 		postMessage({type: 'ws.onmessage', data: $tp});
+		// 更新最后收到消息的时间
+		$c.net.last_receive = performance.now();
 	};
 
 	// 已断开连接
@@ -83,17 +86,14 @@ function start_ws(){
 
 // 网络io循环
 function net_loop(){
-	let $funcStartTime = Date.now();
+	let $loopStartTime = Date.now();
 
-	// 发送心跳包
-	if($c.net.lastSend < $funcStartTime - 20 * 1000){
-		$t.queue_net['heartbeat'] = {
-			type: 'heartbeat',
+	// ping数据包, 代替心跳包
+	if($c.net.last_send < $loopStartTime - 1500){
+		$t.queue_net['ping'] = {
+			type: 'ping',
 		};
 	}
-
-	// 已超时
-
 
 	// 处理网络io队列
 	let $arr = [];
@@ -107,10 +107,10 @@ function net_loop(){
 		$ws.send(JSON.stringify({
 			id: $c.player.id,
 			key: $c.player.key,
-			time: $funcStartTime,
+			time: $loopStartTime,
 			data: $arr,
 		}));
-		$c.net.lastSend = $funcStartTime;
+		$c.net.last_send = $loopStartTime;
 	}
 };
 

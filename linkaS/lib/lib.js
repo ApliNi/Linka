@@ -1,5 +1,4 @@
-const log = require('./plugins/log.js');
-const db = require('./plugins/db.js');
+const db = require('./db.js');
 
 // 基础库
 
@@ -22,7 +21,7 @@ function toJSON($i){
 };
 
 // 注销并删除一个客户端
-function logoutClient($id){
+function logoutClient($id, $message = ''){
 	// 判断这个客户端还在不在
 	if(db.get({id: $id})?.ws){
 		// 注销ws
@@ -32,14 +31,15 @@ function logoutClient($id){
 			log.out('ERROR', '[注销] 玩家 WebSocket 注销失败. 可能存在过期数据库!');
 		}
 	}
-	if(db.get({id: $id})){
+	if(db.getif({id: $id})){
 		// 广播玩家退出
-		to_queue_net('_ALL_', 'playerQuit-'+ $id, {
+		to_queue_net('_ALL_', 'playerQuit_'+ $id, {
 			type: 'playerQuit',
 			id: $id,
+			message: $message,
 		});
 
-		log.out('INFO', '[注销] '+ db.get({id: $id}).name +' 已退出服务器');
+		log.out('PLAYER', '[注销] '+ db.get({id: $id}).name +' 已退出服务器');
 
 		// 删除数据
 		db.del({id: $id});
@@ -152,7 +152,7 @@ function getSyncDataPlayer($id){
 
 // 判断服务器中是否有这个玩家, 以及密钥是否正确
 function enter_playerOK($tp){
-	let $player = db.get({id: $tp.$id});
+	let $player = db.get({id: $tp.id});
 	if($player !== undefined		// 判断服务器中是否有这个实体id
 	&& $player.type === 'player'	// 判断这个实体是不是玩家
 	&& $player.key === $tp.key		// 判断通讯密钥是否正确
@@ -180,3 +180,5 @@ module.exports = {
 	enter_playerOK,
 	is,
 };
+
+

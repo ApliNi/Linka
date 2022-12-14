@@ -1,12 +1,3 @@
-const log = require('./log.js');
-
-// 数据库
-
-// t.insert(json | array) 写入或批量写入数据
-// t.find(json) 查找数据
-// t.update(t) 更新数据
-// t.remove(json) 根据查找指令删除数据
-
 
 // 在数据库中查找数据
 function get($json, $returnArray = false, $p = $c.Entity){
@@ -22,10 +13,37 @@ function get($json, $returnArray = false, $p = $c.Entity){
 	return undefined;
 };
 
+// 判断是否存在
+function getif($json, $p = $c.Entity){
+	// 查找数据
+	if($p.find($json).length === 0){
+		return false;
+	}else{
+		return true;
+	}
+};
+
+// 获取实体的坐标数组
+function getPlace($player, $p = $c.Entity){
+	return [$player.place_x, $player.place_y, $player.place_z, $player.place_x, $player.place_yaw, $player.place_pitch];
+};
+
+// 将坐标数组同步到平面索引
+function _upPlace($player){
+	if($player?.place){
+		$player.place_x = $player.place[0];
+		$player.place_y = $player.place[1];
+		$player.place_z = $player.place[2];
+		$player.place_yaw = $player.place[3];
+		$player.place_pitch = $player.place[4];
+	}
+};
+
 // 添加到数据库
 function add($data, $p = $c.Entity){
 
 	try{
+		_upPlace($data);
 		$p.insert($data);
 	}catch(error){
 		log.out('ERROR', '[数据库] [添加记录]');
@@ -39,6 +57,7 @@ function add($data, $p = $c.Entity){
 
 // 更新到数据库
 function up($data, $p = $c.Entity){
+	_upPlace($data);
 	$p.update($data);
 };
 
@@ -50,6 +69,8 @@ function del($json, $p = $c.Entity){
 
 module.exports = {
 	get,
+	getif,
+	getPlace,
 	add,
 	up,
 	del,

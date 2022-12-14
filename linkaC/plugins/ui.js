@@ -132,9 +132,9 @@ function _worker(){
 		}else
 
 		if($tp.type === 'ws.onmessage'){ // 收到消息
-			let $funcStartTime = Date.now();
+			let $loopStartTime = Date.now();
 			// 更新上次连接时间
-			$c.time.lastHave = $funcStartTime;
+			$c.time.lastHave = $loopStartTime;
 
 			// 遍历数组
 			$tp.data.data.forEach((e) => {
@@ -177,10 +177,10 @@ function _loop($name, $start){
 
 // 网络io循环
 // function _loop_net(){
-// 	let $funcStartTime = Date.now();
+// 	let $loopStartTime = Date.now();
 
 // 	// 发送心跳包
-// 	if($c.time.lastSend < $funcStartTime - 20 * 1000){
+// 	if($c.time.lastSend < $loopStartTime - 20 * 1000){
 // 		$t.queue_net['heartbeat'] = {
 // 			type: 'heartbeat',
 // 		};
@@ -201,24 +201,24 @@ function _loop($name, $start){
 // 		$w.postMessage({type: 'ws_send', data: {
 // 			id: $c.player.id,
 // 			key: $c.player.key,
-// 			time: $funcStartTime,
+// 			time: $loopStartTime,
 // 			data: $arr,
 // 		}});
 // 		// ws.send(JSON.stringify({
 // 		// 	id: $c.player.id,
 // 		// 	key: $c.player.key,
-// 		// 	time: $funcStartTime,
+// 		// 	time: $loopStartTime,
 // 		// 	data: $arr,
 // 		// }));
-// 		$c.time.lastSend = $funcStartTime;
+// 		$c.time.lastSend = $loopStartTime;
 // 	}
 
-// 	$c.time.mspt_net = Date.now() - $funcStartTime;
+// 	$c.time.mspt_net = Date.now() - $loopStartTime;
 // };
 
 // tps循环
 function _loop_tps(){
-	let $funcStartTime = Date.now();
+	let $loopStartTime = Date.now();
 
 	// 遍历实体移动队列
 	let $_t = {
@@ -319,13 +319,13 @@ function _loop_tps(){
 		});
 	}
 
-	$c.time.mspt_tps = Date.now() - $funcStartTime;
+	$c.time.mspt_tps = Date.now() - $loopStartTime;
 };
 
 
 // 本地ui处理循环
 function _loop_ui(){
-	let $funcStartTime = Date.now();
+	let $loopStartTime = Date.now();
 
 	// 玩家移动
 	playerMove();
@@ -380,8 +380,8 @@ function _loop_ui(){
 				update_place_to_background();	// 背景相对玩家位置
 
 				// 场景层更新周期
-				if($c.time.last_update_place_noRealTime < $funcStartTime - 1200){
-					$c.time.last_update_place_noRealTime = $funcStartTime;
+				if($c.time.last_update_place_noRealTime < $loopStartTime - 1200){
+					$c.time.last_update_place_noRealTime = $loopStartTime;
 					// 层缩放中心位置, 因为过渡动画时间足够长, 不需要实时更新
 					update_place_to_transformOrigin();
 				}
@@ -399,7 +399,7 @@ function _loop_ui(){
 				// 触发玩家移动事件
 				//__player_move();
 			}else{
-				$c.time.player_move_start = $funcStartTime;
+				$c.time.player_move_start = $loopStartTime;
 
 				// 使用键盘控制
 				if($t.WASD.isKeyboard === true){
@@ -422,8 +422,8 @@ function _loop_ui(){
 	// F3 调试界面启用
 	if($t.F3.enable === true){
 		// 设置更新周期, 防止太快
-		if($t.F3.lastUpdateTime < $funcStartTime - 70){
-			$t.F3.lastUpdateTime = $funcStartTime;
+		if($t.F3.lastUpdateTime < $loopStartTime - 70){
+			$t.F3.lastUpdateTime = $loopStartTime;
 			// 如果允许更新
 			if($t.F3.update === true){
 				// 渲染调试信息
@@ -450,14 +450,14 @@ function _loop_ui(){
 
 	}
 
-	$c.time.mspt_ui = Date.now() - $funcStartTime;
+	$c.time.mspt_ui = Date.now() - $loopStartTime;
 };
 
 
 
 // 数据接收主程序
 function main($tp, $serverTime){
-	let $funcStartTime = Date.now();
+	let $loopStartTime = Date.now();
 
 	if($tp.type === 'reg'){ // 注册玩家
 		// 将服务器分配的玩家id保存下来
@@ -468,7 +468,7 @@ function main($tp, $serverTime){
 	}else
 
 	if($tp.type === 'info'){ // 显示提示信息
-		alert('Server: '+ $tp.info);
+		alert('服务器: '+ $tp.info);
 	}else
 
 	if($tp.type === 'syncServerData'){ // 与服务器同步数据
@@ -544,12 +544,12 @@ function main($tp, $serverTime){
 		}
 
 		// 玩家加入消息
-		addMessage($tp.data.name, '加入了服务器', {class: 'new player_join'});
+		addMessage($tp.data.name, $tp?.message || '加入了服务器', {class: 'new player_join'});
 	}else
 
 	if($tp.type === 'playerQuit'){ // 玩家退出
 		// 玩家退出消息
-		addMessage($c.entity[$tp.id].name, '跑了', {class: 'new player_quit'});
+		addMessage($c.entity[$tp.id].name, $tp?.message || '断开连接', {class: 'new player_quit'});
 
 		// 如果客户端有这个实体
 		if(typeof $c.entity[$tp.id] === 'object'){
@@ -586,7 +586,7 @@ function main($tp, $serverTime){
 
 	if($tp.type === 'ping'){ // 处理延迟计算数据包
 		// 客户端接收时间 - 客户端发送时间 - (服务器发送时间 - 服务器接收时间)
-		$c.time.ping = $funcStartTime - $tp.clientSend - ($serverTime - $tp.serverHave);
+		$c.time.ping = $loopStartTime - $tp.clientSend - ($serverTime - $tp.serverHave);
 		// 渲染 tpsbar
 		render_tpsbar($tp.mspt, $c.time.ping);
 		// 记录mspt
@@ -598,7 +598,7 @@ function main($tp, $serverTime){
 
 // 数据发送主程序
 function main_send($tp){
-	let $funcStartTime = Date.now();
+	let $loopStartTime = Date.now();
 
 	if($tp.type === 'sendMessage'){ // 发送聊天消息
 		// 如果消息为空则不发送
@@ -606,11 +606,11 @@ function main_send($tp){
 			return false;
 		}
 		// 创建消息发送
-		$w.postMessage({type: 'queue_net', key: 'sendMessage'+ $funcStartTime, data: {
+		$w.postMessage({type: 'queue_net', key: 'sendMessage'+ $loopStartTime, data: {
 			type: 'sendMessage',
 			message: geb('message-input').value,
 		}});
-		// $t.queue_net['sendMessage'+ $funcStartTime] = {
+		// $t.queue_net['sendMessage'+ $loopStartTime] = {
 		// 	type: 'sendMessage',
 		// 	message: geb('message-input').value,
 		// };
@@ -992,7 +992,10 @@ async function _document_onkeydown(event){
 		event.preventDefault();
 		// 其他组件
 		if($t.message.enable === true){ // 聊天组件
-			
+			// 如果是指令
+
+			// 运行指令补全
+
 		}else{ // 没有组件, 显示玩家列表
 			// 显示玩家名称和数量
 			let $iM = '';

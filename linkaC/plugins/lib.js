@@ -82,9 +82,9 @@ async function render_entity($tp){
 	$dom2.appendChild($dom3);
 
 	// 插入聊天气泡框
-	$dom3 = document.createElement('span');
-		$dom3.setAttribute('class', 'message -quit');
-	$dom2.appendChild($dom3);
+	// $dom3 = document.createElement('span');
+	// 	$dom3.setAttribute('class', 'message -quit');
+	// $dom2.appendChild($dom3);
 
 	$dom.appendChild($dom2);
 
@@ -170,48 +170,71 @@ async function addMessage($m1, $m2, $tp){
 		playerID: $tp.playerID || '',
 		notification: $tp.notification || false,
 	}
+
 	// 删除一条旧消息, 如果有的话
 	let $dom = geb('message-list').getElementsByTagName('p');
 	for(let key = 0; $dom.length >= 256; key++){ // 删除256条之前的
 		$dom[key].remove();
 	}
+	$dom = null;
+
 	// 解析消息中的特殊文本
 	$m2 = filter($m2);
+	$m1 = filter($m1);
 	$m2 = $m2
 		// 图片 `![描述](url)` // loading="lazy"
-		.replace(/\!\[(.*)?\]\((https?\:\/\/[0-9a-zA-Z](?:[-.\w]*[0-9a-zA-Z])*(?::(0-9)*)*(?:\/?)(?:[a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%$#_\=]*)?)\s?(?:\s+\"(.*)\")?\)/gi, '<img alt="$1" src="$2" title="$3" />')
+		.replace(/\!\[([^\]])?\]\((https?\:\/\/[0-9a-zA-Z](?:[-.\w]*[0-9a-zA-Z])*(?:\:(?:0-9)*)*(?:\/?)(?:[a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%$#_\=]*))\s?(?:\s+\"([^\"])\")?\)/gi, '<img alt="$1" src="$2" title="$3" />')
 		// URL
-		.replace(/((?<!src=")(https?\:\/\/[0-9a-zA-Z](?:[-.\w]*[0-9a-zA-Z])*(?::(0-9)*)*(?:\/?)(?:[a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%$#_\=]*)?)(?!\"))/gi, '<a href="$1" target="_blank">$1</a>')
+		.replace(/(\<[^\>]+)?(https?\:\/\/[0-9a-zA-Z](?:[-.\w]*[0-9a-zA-Z])*(?:\:(?:0-9)*)*(?:\/?)(?:[a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%$#_\=]*)?)([^\<]+\>)?/gi, ($0, $1, $2, $3) => {
+			if($1 === undefined && $3 === undefined){
+				return '<a href="'+ $2 +'" target="_blank" rel="noopener noreferrer">'+ $2 +'</a>';
+			}else{
+				return $0;
+			}
+		})
 		// 反斜杠转义字符
 		.replace(/\\(.{1})/gi, '$1')
 	;
 
+	// 通过domApi验证消息, 是否包含危险的标签 (防止正则注入)
+	// !! 还需要防止危险的html事件属性... 可能会使用第三方库解决
+	// !! 需要判断消息来自客户端还是服务器, 否则影响扩展性
+	let $0 = document.createElement('span');
+		$0.setAttribute('class', 'm2');
+		$0.innerHTML = $m2;
+	if($0.querySelectorAll(':not(img, a)').length !== 0){
+		console.log('危险的消息:', $m2);
+		$m2 = '!这条消息可能存在危险, 客户端不允许进行渲染, 请在控制台中查看';
+		$tp.class += ' error';
+	}
+	$0 = null;
+
 	// 创建消息dom
 	let $p = document.createElement('p');
 		$p.setAttribute('class', $tp.class);
-		$p.innerHTML = `<span class="m1"><span class="name">${filter($m1)}</span></span><span class="m2">${$m2}</span>`;
+		$p.innerHTML = `<span class="m1"><span class="name">${$m1}</span></span><span class="m2">${$m2}</span>`;
 	geb('message-list').appendChild($p);
 
 	// 消息也在玩家名称上方显示
-	if($tp.playerID !== ''){
-		// 获取指定玩家的气泡框
-		let $dom = geb($tp.playerID).querySelector('.top_text > span.message');
-		// 如果气泡框已经打开
-		if($dom.classList.contains('-quit') === false){
-			// 关闭后填充消息再重新打开
-			$dom.classList.add('-quit');
-			setTimeout(function(){ // 延迟显示新消息
-				$dom.innerHTML = `<span class="m2">${$m2}</span>`;
-				$dom.classList.remove('-quit');
-			}, 100);
-		}else{
-			$dom.innerHTML = `<span class="m2">${$m2}</span>`;
-			$dom.classList.remove('-quit');
-		}
-		setTimeout(function(){
-			$dom.classList.add('-quit');
-		}, 4000);
-	}
+	// if($tp.playerID !== ''){
+	// 	// 获取指定玩家的气泡框
+	// 	let $dom = geb($tp.playerID).querySelector('.top_text > span.message');
+	// 	// 如果气泡框已经打开
+	// 	if($dom.classList.contains('-quit') === false){
+	// 		// 关闭后填充消息再重新打开
+	// 		$dom.classList.add('-quit');
+	// 		setTimeout(function(){ // 延迟显示新消息
+	// 			$dom.innerHTML = `<span class="m2">${$m2}</span>`;
+	// 			$dom.classList.remove('-quit');
+	// 		}, 100);
+	// 	}else{
+	// 		$dom.innerHTML = `<span class="m2">${$m2}</span>`;
+	// 		$dom.classList.remove('-quit');
+	// 	}
+	// 	setTimeout(function(){
+	// 		$dom.classList.add('-quit');
+	// 	}, 4000);
+	// }
 
 	// 桌面通知
 	if($tp.notification === true){

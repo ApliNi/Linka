@@ -45,42 +45,24 @@
 	color: #fff;
 	background-color: rgba(0, 0, 0, 32%);
 	padding: 4px 0 0 4px;
-	height: auto;
-}
-#message > #message-list > p.old{
-	/* transition: all 0s; */
+
 	opacity: 0;
-	/* height: 0;
-	padding-top: 0; */
-	color: #ddd;
+	height: 0;
+	padding-top: 0;
 }
 #message > #message-list > p.new{
 	transition: all 0s;
-	opacity: 0;
-	/* height: 0;
-	padding-top: 0; */
 	animation: newMessage 8s;
 }
 #message > #message-list > p.center{
 	display: flex;
 	justify-content: center;
 }
-#message > #message-list > p.player_join,
-#message > #message-list > p.player_quit{
-	animation: newMessage 4s;
-	color: #feffb0;
-}
-/* @keyframes newMessage{
+@keyframes newMessage{
 	0% {opacity: 1; height: auto; padding-top: 4px;}
-	80% {opacity: 1; height: auto; padding-top: 4px;}
+	80% {opacity: 1;}
 	99% {opacity: 0; height: auto; padding-top: 4px;}
 	100% {opacity: 0; height: 0; padding-top: 0;}
-} */
-@keyframes newMessage{
-	0% {opacity: 1;}
-	80% {opacity: 1;}
-	99% {opacity: 0;}
-	100% {opacity: 0; content-visibility: hidden;}
 }
 #message > #message-list{
 	transition: all 0s;
@@ -108,9 +90,8 @@
 }
 #message.-open > #message-list > p{
 	opacity: 1 !important; /* !important 覆盖动画样式, 但在Safari中无效 */
-	content-visibility: visible;
-	/* height: auto !important;
-	padding-top: 4px !important; */
+	height: auto !important;
+	padding-top: 4px !important;
 	transition: all .2s ease;
 	background-color: transparent;
 	/* margin: 10px 0; */
@@ -133,6 +114,17 @@
 	padding: 2px 5px 1px 5px;
 	font-size: 14px;
 	color: #cbff64;
+}
+#message > #message-list > p.system .m1 > .name{
+	color: #3eedff;
+}
+#message > #message-list > p.old{
+	color: #ddd;
+}
+#message > #message-list > p.player_join,
+#message > #message-list > p.player_quit{
+	animation: newMessage 4s;
+	color: #feffb0;
 }
 .m2{
 	display: flex;
@@ -161,7 +153,9 @@
 	text-decoration: underline;
 	background-color: transparent;
 }
-
+#message > #message-list > p.error .m2{
+	color: #000;
+}
 #message > #message-list > p.flat .m1 .name{
 	padding: 2px 30px 1px 30px;
 	color: var(--a0);
