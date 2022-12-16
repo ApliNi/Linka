@@ -73,7 +73,7 @@ wss.on('connection', (ws) => {
 				$player.time.lastHave = $loopStartTime;
 
 				// 判断最近1秒是否有发送数据
-				if(db.get({id: $tp.id}).time.ping < $loopStartTime - 1500){
+				if(db.get({id: $tp.id}).time.ping < $loopStartTime - 1700){
 					// 创建ping数据
 					lib.to_queue_net($tp.id, 'ping', {
 						type: 'ping',

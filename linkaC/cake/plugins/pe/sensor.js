@@ -1,5 +1,13 @@
 // 传感器控制
 
+
+window.addEventListener('deviceorientation', function(e){
+	if($c.plugins?.sensor?.enable === true){
+		_sensorFunc(1, e);
+	}
+}, false);
+
+
 function _sensor($mode, $this){
 	// 初始化
 	if(!$c.plugins?.sensor){
@@ -43,11 +51,11 @@ function _sensor($mode, $this){
 				console.log('传感器权限申请失败');
 				// 恢复按钮状态, 关闭使能
 				$c.plugins.sensor.enable = false;
-				$c.plugins.sensor.gyro.reset_ok = false;
-				btnSS($this);
+				lib.btnSS($this);
 			}
 		}else{
 			$c.plugins.sensor.enable = false;
+			$c.plugins.sensor.gyro.reset_ok = false;
 			$t.WASD.enable = false;
 		}
 	});
@@ -60,14 +68,14 @@ function _sensorFunc($mode, e){
 		// 根据屏幕方向获取数组
 		function getXYZ(){
 			// a=, b=-左+右, g=+上-下
-			if($cc.screen_orientation === 0){
+			if($cc.screen_orientation === 0){ // 普通横屏
 				return [e.alpha, e.beta, e.gamma];
-			}else if($cc.screen_orientation === 1){
+			}else if($cc.screen_orientation === 1){ // 反向横屏
 				return [e.alpha, e.beta, 0 - e.gamma];
-			}else if($cc.screen_orientation === 2){
-				return [e.alpha, e.gamma, e.beta];
-			}else if($cc.screen_orientation === 3){
+			}else if($cc.screen_orientation === 2){ // 普通竖屏
 				return [e.alpha, e.gamma, 0 - e.beta];
+			}else if($cc.screen_orientation === 3){ // 反向竖屏??
+				return [e.alpha, e.gamma, e.beta];
 			}
 		};
 

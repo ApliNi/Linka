@@ -38,7 +38,7 @@ db.add([
 							// 修改样式
 							type: 'js',
 							code: `
-								let $i = geb($tp.id).getElementsByClassName('---img_nodejs')[0];
+								let $i = lib.geb($tp.id).getElementsByClassName('---img_nodejs')[0];
 								$i.style.transition = 'transform 700ms 600ms';
 								$i.style.transform = 'rotate(258deg)';
 							`,
@@ -60,7 +60,7 @@ db.add([
 							sudo_npc_id: 'npc4',
 							type: 'js',
 							code: `
-								let $i = geb($tp.id).getElementsByClassName('---img_java')[0];
+								let $i = lib.geb($tp.id).getElementsByClassName('---img_java')[0];
 								$i.style.transition = 'transform 700ms 200ms, right 300ms';
 								$i.style.transform = 'rotate(20deg)';
 								$i.style.right = '30px';
@@ -85,7 +85,7 @@ db.add([
 							// 还原样式
 							type: 'js',
 							code: `
-								let $i = geb($tp.id).getElementsByClassName('---img_nodejs')[0];
+								let $i = lib.geb($tp.id).getElementsByClassName('---img_nodejs')[0];
 								$i.style.transform = 'rotate(98deg)';
 							`,
 						},
@@ -94,7 +94,7 @@ db.add([
 							sudo_npc_id: 'npc4',
 							type: 'js',
 							code: `
-								let $i = geb($tp.id).getElementsByClassName('---img_java')[0];
+								let $i = lib.geb($tp.id).getElementsByClassName('---img_java')[0];
 								$i.style.transform = 'rotate(0deg)';
 								$i.style.right = '43px';
 								$i.style.animation = 'none';

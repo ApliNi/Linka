@@ -19,6 +19,10 @@ body{
 #message > input{
 	padding-top: 4px;
 }
+/* 覆盖消息样式 */
+.m2 img{
+	max-height: calc(var(--message_list_max_height) * 0.4);
+}
 
 .plugins .btn{
 	white-space: nowrap;

@@ -1,0 +1,16 @@
+{
+	"file": [
+		"cake/lib/info.css",
+		"cake/lib/animationLib.css",
+
+		"cake/plugins/lib/npc.js",
+		"cake/plugins/lib/player_basic.js",
+		"cake/plugins/pe/pe.js",
+
+		"cake/plugins/reg_login.js",
+		"cake/plugins/player.js",
+		"cake/plugins/onkey.js",
+		"cake/plugins/message.js",
+		"cake/plugins/server.js"
+	]
+}

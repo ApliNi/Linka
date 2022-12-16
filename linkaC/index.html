@@ -4,20 +4,34 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=0.7, minimum-scale=0.7, maximum-scale=0.7, user-scalable=no">
+
 	<title>[IpacEL]/ LinkaC.测试</title>
 	<meta name="Description" content="LinkaC的测试网页">
-	<link rel="stylesheet" href="/plugins/cake.css?v=1.96">
-	<link rel="stylesheet" href="plugins/ui.css?v=0.1.2">
-	<link rel="stylesheet" href="plugins/plugins/animationLib.css?v=0.1.2">
-
-	<link rel="stylesheet" href="plugins/plugins/info.css?v=0.1.2">
-
-	<link rel="manifest" href="plugins/manifest.json">
+	<link rel="manifest" href="manifest.json">
 	<meta name="theme-color" content="#202124">
-	<link rel="apple-touch-icon" href="plugins/icon_512_big_b.png" sizes="512x512">
+	<link rel="apple-touch-icon" href="/plugins/img/icon_512_big_b.png" sizes="512x512">
+
+	<!-- 基础样式 -->
+	<link rel="stylesheet" href="/plugins/cake.css?v=1.96">
+	<link rel="stylesheet" href="cake/ui.css?v=0.1.2">
+
+	<!-- 功能库 -->
+	<script type="text/javascript" src="cake/lib/main.lib.js?v=0.1.2"></script>
+	<script type="text/javascript" src="cake/lib/lib.js?v=0.1.2"></script>
+	<!-- 初始化程序 -->
+	<script type="text/javascript" src="cake/starter.js?v=0.1.2"></script>
+	<script type="text/javascript" src="cake/event.js?v=0.1.2"></script>
+	<!-- 主程序 -->
+	<script type="text/javascript" src="cake/main.js?v=0.1.2"></script>
+	<script type="text/javascript" src="cake/loop.js?v=0.1.2"></script>
+	<!-- worker模块 -->
+	<script type="text/javascript" src="cake/worker/worker.js?v=0.1.2"></script>
+	<!-- 流 -->
+	<script type="text/javascript" src="cake/flow/ui.js?v=0.1.2"></script>
+
 </head>
 <body>
-	<div id="main">
+	<div id="main" style="opacity: 0;">
 
 		<!-- 场景层 -->
 		<div id="background" class="moveFollowLayer">
@@ -87,17 +101,19 @@
 				<p> - a拖拽上传图片</p>
 				<p> - a本地的收藏图片</p>
 				<p> - c客户端的 Loki.js, 或者服务端的实体剔除?</p>
-				<p> - c整理前端代码</p>
 
 				<br />
 				<p>v0.3更新日志: </p>
+				<p> - !c重写前端, 实现与服务器相同的扩展能力</p>
+				<p> - c通过CSS实现更平滑的Tpsbar</p>
+				<p> - c一些错误修复</p>
 				<p> - a更好的心跳包和ping显示, 将连接超时时间改为20秒</p>
 				<p> - a显示玩家断开的方式: 断开连接|连接丢失|心跳超时</p>
 				<p> - s更好的指令消息输出</p>
 				<p> - c!解决移动端滚动条, 正则表达式等兼容问题</p>
 				<p> - !s整理后端代码, 添加事件, 更好的扩展能力</p>
-				<p> - !s使用 Loki.js 内存数据库代替普通json</p>
 				<p> - s简洁的主程序</p>
+				<p> - !s使用 Loki.js 内存数据库代替普通json</p>
 				<p> - a添加指令系统</p>
 				<p> - s更好的日志系统</p>
 				<p> - s更好的初始化程序</p>
@@ -204,7 +220,10 @@
 		<div id="all-player" class="moveFollowLayer"></div>
 
 		<!-- TPSBAR -->
-		<div id="tpsbar"></div>
+		<div id="tpsbar">
+			<p>TPS: <span class="_tps"></span>&nbsp;&nbsp; MSPT: <span class="_mspt"></span>&nbsp;&nbsp; PING: <span class="_ping"></span>ms</p>
+			<div><div class="a"></div></div>
+		</div>
 
 		<!-- TAB -->
 		<div id="key-tab" class="--user_select"></div>
@@ -228,7 +247,7 @@
 			<div class="message_input_bc">
 				<button class="btn" onclick="main_send({type: 'sendMessage'}); _document_onkeyup({code: 'Escape'});">发送</button>
 			</div>
-			<input id="message-input" maxlength="2048" onkeypress="if(event.keyCode===13){main_send({type: 'sendMessage'}); _document_onkeyup({code: 'Escape'});}" />
+			<input id="message-input" maxlength="2048" />
 		</div>
 
 		<!-- 玩家选择消息 -->
@@ -244,17 +263,4 @@
 		</div>
 	</div>
 </body>
-	<!-- 功能库 -->
-	<script type="text/javascript" src="plugins/lib.js?v=0.1.2"></script>
-	<!-- 主程序 -->
-	<script type="text/javascript" src="plugins/ui.js?v=0.1.2"></script>
-	<!-- 事件 -->
-	<script type="text/javascript" src="plugins/event.js?v=0.1.2"></script>
-
-	<!-- 插件.移动端操作 -->
-	<script type="text/javascript" src="plugins/plugins/pe.js?v=0.1.2"></script>
-	<!-- 插件.传感器 -->
-	<script type="text/javascript" src="plugins/plugins/sensor.js?v=0.1.2"></script>
-	<!-- 插件.测试代码 -->
-	<script type="text/javascript" src="plugins/plugins/cc.js?v=0.1.2"></script>
 </html>

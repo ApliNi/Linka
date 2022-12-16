@@ -50,7 +50,7 @@ function run($comm, $player, $power){
 		}else
 
 		// tp <x> <y>		- 传送到坐标
-		if($comm.length === 3 && $power >= 2
+		if($comm.length === 3 && $power >= 1
 		&& isNaN(Number($comm[1])) === false
 		&& isNaN(Number($comm[2])) === false
 		){

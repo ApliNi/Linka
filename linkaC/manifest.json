@@ -13,12 +13,12 @@
 			"type": "image/png"
 		},
 		{
-			"src": "icon_512_big_b.png",
+			"src": "https://ipacel.cc/plugins/img/icon_512_big_b.png",
 			"sizes": "512x512",
 			"type": "image/png"
 		},
 		{
-			"src": "icon_512_big_b.png",
+			"src": "https://ipacel.cc/plugins/img/icon_512_big_b.png",
 			"sizes": "512x512",
 			"type": "image/png",
 			"purpose": "any maskable"

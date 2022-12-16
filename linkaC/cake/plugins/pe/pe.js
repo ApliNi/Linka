@@ -1,35 +1,31 @@
-// 插件.移动端操作支持
 
-
-
-// 判断是否为移动端
+// 移动端操作支持
 // js判断 和 url配置
-if((isPE() === true || fromUrl('isPE') === 'true') && fromUrl('isPE') !== 'false'){
+if((lib.isPE() === true || lib.fromUrl('lib.isPE') === 'true') && lib.fromUrl('lib.isPE') !== 'false'){
 	// 阻止双击放大
-	let lastTouchEnd = 0;
-	document.addEventListener('touchstart', function(event){
-		if(event.touches.length > 1){event.preventDefault();}
+	document.addEventListener('touchstart', function(e){
+		if(e.touches.length > 1) e.preventDefault();
 	});
-	document.addEventListener('touchend', function(event){
+	let lastTouchEnd = 0;
+	document.addEventListener('touchend', function(e){
 		let now = (new Date()).getTime();
-		if(now - lastTouchEnd <= 300){event.preventDefault();}
+		if(now - lastTouchEnd <= 300) e.preventDefault();
 		lastTouchEnd = now;
 	}, false);
 	// 禁止页面滚动
 	document.body.addEventListener('touchmove', function(e){
  		e.preventDefault();
-	},{passive: false});
+	}, {passive: false});
 
-	// 将按键改为摇杆
+	// 禁用键盘, 改为摇杆
 	$t.WASD.isKeyboard = false;
 
-	// 加载css
-	let link = document.createElement('link');
-	link.rel = 'stylesheet';
-	link.href = 'plugins/plugins/pe.css?v=0.1.2';
-	document.getElementsByTagName('head')[0].appendChild(link);
+	// 加载其他代码
+	mainLib.loadCode('cake/plugins/pe/pe.css?v=0.1.2');
+	mainLib.loadCode('cake/plugins/pe/sensor.js?v=0.1.2');
+
 	// 创建按键dom
-	geb('_plugins').innerHTML += `
+	lib.geb('_plugins').innerHTML += `
 		<!-- 方向键 -->
 		<div id="plugins_WASD_box" class="WASD btn"></div>
 		<!-- 其他按键 -->
@@ -54,12 +50,12 @@ if((isPE() === true || fromUrl('isPE') === 'true') && fromUrl('isPE') !== 'false
 			</div>
 			<div class="right_box">
 				<div>
-					<button class="btn" onclick="if(btnSS(this)){_sensor(true, this)}else{_sensor(false, this)}">陀螺仪</button>
+					<button class="btn" onclick="if(lib.btnSS(this)){_sensor(true, this)}else{_sensor(false, this)}">陀螺仪</button>
 					<div class="btn side" title="设置陀螺仪原点" data-onfunc="_sensorOrigin(true)" data-offfunc="_sensorOrigin(false)">R</div>
 					<span class="text">[设置陀螺仪原点]<br />调整到合适的角度后松开按键</span>
 				</div>
 				<div>
-					<!-- <button class="btn" onclick="btnSS(this)">加速度</button> -->
+					<!-- <button class="btn" onclick="lib.btnSS(this)">加速度</button> -->
 				</div>
 			</div>
 		</div>
@@ -67,7 +63,7 @@ if((isPE() === true || fromUrl('isPE') === 'true') && fromUrl('isPE') !== 'false
 
 	// 获取摇杆中心坐标
 	function rockerCoreSite(){
-		let $0 = geb('plugins_WASD_box');
+		let $0 = lib.geb('plugins_WASD_box');
 		return [
 			$0.offsetLeft + $0.scrollWidth / 2,
 			0 - ($0.offsetTop + $0.scrollHeight / 2),
@@ -100,24 +96,24 @@ if((isPE() === true || fromUrl('isPE') === 'true') && fromUrl('isPE') !== 'false
 	};
 
 	// 按键事件
-	geb('plugins_WASD_box').ontouchstart = function(e){
+	lib.geb('plugins_WASD_box').ontouchstart = function(e){
 		//console.log('按下', e);
 		_on(e);
 		// 注册移动计算
 		$t.WASD.enable = true;
 	};
-	geb('plugins_WASD_box').ontouchmove = function(e){
+	lib.geb('plugins_WASD_box').ontouchmove = function(e){
 		// console.log('移动', e);
 		_on(e);
 	};
-	geb('plugins_WASD_box').ontouchend = function(e){
+	lib.geb('plugins_WASD_box').ontouchend = function(e){
 		//console.log('松开', e);
 		// 注销移动计算
 		$t.WASD.enable = false;
 	};
 
 	// 其他按键
-	geb('plugins_key_box').ontouchstart = function(e){
+	lib.geb('plugins_key_box').ontouchstart = function(e){
 		let $date = e.composedPath()[0].dataset;
 		if($date?.code){
 			_document_onkeydown({code: $date.code});
@@ -128,7 +124,7 @@ if((isPE() === true || fromUrl('isPE') === 'true') && fromUrl('isPE') !== 'false
 			new Function($date.onfunc)();
 		}
 	};
-	geb('plugins_key_box').ontouchend = function(e){
+	lib.geb('plugins_key_box').ontouchend = function(e){
 		let $date = e.composedPath()[0].dataset;
 		if($date?.code){
 			_document_onkeyup({code: $date.code});

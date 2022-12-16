@@ -23,12 +23,13 @@ function getif($json, $p = $c.Entity){
 	}
 };
 
-// 获取实体的坐标数组
-function getPlace($player, $p = $c.Entity){
-	return [$player.place_x, $player.place_y, $player.place_z, $player.place_x, $player.place_yaw, $player.place_pitch];
-};
+// 获取实体的坐标数组, 通过平面索引
+// function getPlace($player, $p = $c.Entity){
+// 	return [$player.place_x, $player.place_y, $player.place_z, $player.place_x, $player.place_yaw, $player.place_pitch];
+// };
 
 // 将坐标数组同步到平面索引
+// 存取数据时可以忽略这些, 依旧读写place数组, 此部分的作用是索引数组中的数值
 function _upPlace($player){
 	if($player?.place){
 		$player.place_x = $player.place[0];
@@ -70,7 +71,7 @@ function del($json, $p = $c.Entity){
 module.exports = {
 	get,
 	getif,
-	getPlace,
+	// getPlace,
 	add,
 	up,
 	del,

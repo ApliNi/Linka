@@ -132,7 +132,7 @@
 	flex-direction: row;
 }
 .m2 img{
-	max-height: calc(var(--message_list_max_height) * 0.4);
+	max-height: calc(var(--message_list_max_height) * 0.3);
 	outline: solid 1px transparent;
 	padding: 10px;
 	width: 100%;
@@ -189,15 +189,59 @@
 	text-align: center;
 	margin: 0px;
 }
+
+
+
+
+#tpsbar{
+	--tpsbar_tps: 0;
+	--tpsbar_mspt: 0;
+	--tpsbar_ping: 0;
+	--tpsbar_width: 70%;
+	--tpsbar_max_width: 0%
+}
+@property --tpsbar_tps{
+	syntax: "<integer>";
+	initial-value: 0;
+	inherits: true;
+}
+#tpsbar > p ._tps{
+	transition: --tpsbar_tps 2.5s ease-in-out;
+	counter-reset: num var(--tpsbar_tps);
+}
+@property --tpsbar_mspt{
+	syntax: "<integer>";
+	initial-value: 0;
+	inherits: true;
+}
+#tpsbar > p ._mspt{
+	transition: --tpsbar_mspt 3.5s ease-in-out;
+	counter-reset: num var(--tpsbar_mspt);
+}
+@property --tpsbar_ping{
+	syntax: "<integer>";
+	initial-value: 0;
+	inherits: true;
+}
+#tpsbar > p ._ping{
+	transition: --tpsbar_ping 6s ease-in-out;
+	counter-reset: num var(--tpsbar_ping);
+}
+#tpsbar > p ._tps::before, #tpsbar > p ._mspt::before, #tpsbar > p ._ping::before{
+	content: counter(num);
+}
 #tpsbar > div{
-	min-width: 400px;
+	transition: width 2s ease 0.45s;
 	max-width: 400px;
+	width: var(--tpsbar_max_width);
 	background-color: rgb(53, 87, 17);
 	height: 5px;
 }
 #tpsbar > div > div.a{
-	background-color: rgb(121, 255, 19);
+	transition: max-width 3s ease-in-out;
 	height: 5px;
+	max-width: var(--tpsbar_width);
+	background-color: rgb(121, 255, 19);
 }
 @media(max-width: 410px){
 	#tpsbar{
@@ -208,6 +252,8 @@
 		display: none;
 	}
 }
+
+
 
 /* 玩家列表 */
 #key-tab, #F3{

@@ -1,51 +1,44 @@
-// lib全局变量
-let $lib_c = {
-	// 正在重新加载
-	reconnecting: false,
-}
+// 功能库
+lib = {};
+
 
 //常用的获取div
-function geb($i){return document.getElementById($i)};
+lib.geb = function ($i){return document.getElementById($i)};
+
 
 // 是否为移动端
-function isPE(){return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? true : false;}
+lib.isPE = function (){return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? true : false;}
+
 
 //获取url参数
-function fromUrl($name){
+lib.fromUrl = function ($name){
 	let $i = window.location.search.substring(1).match(new RegExp('(^|&)'+ $name +'=([^&]*)(&|$)', 'i'));
 	return $i ? decodeURIComponent($i[2]) : '';
 };
 
-// 转义html标签的特殊字符
-function filter($i){return String($i).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')};
 
-// 获取网页宽高
-// function getClientWidthHeight(){
-// 	return [
-// 		document.documentElement.clientWidth,
-// 		document.documentElement.clientHeight,
-// 	];
-// 	//return [0, 0];
-// };
+// 转义html标签的特殊字符
+lib.filter = function ($i){return String($i).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')};
+
 
 // 渲染 Tpsbar
-async function render_tpsbar($mspt, $ping){
+lib.render_tpsbar = async function ($mspt, $ping){
 	// tps
-	let $tps = Math.round(1000 / Math.max($c.loop._tps_time, $mspt));
+	let $tps = Math.round(1000 / Math.max($c.loop.tps_time, $mspt));
 	// 进度条, 百分比
-	let $a = $mspt / $c.loop._tps_time * 100;
+	let $a = $mspt / $c.loop.tps_time * 100;
 
-	geb('tpsbar').innerHTML = `
-		<p>TPS: ${$tps}&nbsp;&nbsp; MSPT: ${$mspt}&nbsp;&nbsp; PING: ${$ping}ms</p>
-		<div>
-			<div class="a" style="max-width: ${$a}%"></div>
-		</div>
-	`;
+	let $dom = lib.geb('tpsbar').style;
+	$dom.setProperty('--tpsbar_tps', $tps);
+	$dom.setProperty('--tpsbar_mspt', $mspt);
+	$dom.setProperty('--tpsbar_ping', $ping);
+	$dom.setProperty('--tpsbar_width', $a +'%');
+	$dom.setProperty('--tpsbar_max_width', '100%');
 };
 
-// 创建一个实体
-async function render_entity($tp){
 
+// 渲染实体
+lib.render_entity = async function ($tp){
 	// 创建实体主dom
 	let $dom = document.createElement('div');
 		$dom.setAttribute('id', $tp.id);
@@ -89,14 +82,15 @@ async function render_entity($tp){
 	$dom.appendChild($dom2);
 
 	// 渲染到实体层
-	geb('all-player').appendChild($dom);
+	lib.geb('all-player').appendChild($dom);
 
 	// 更新坐标
-	update_place_to_player($tp.id);
+	lib.update_place_to_player($tp.id);
 };
 
+
 // 更新玩家的坐标
-async function update_place_to_player($entity = ''){
+lib.update_place_to_player = async function ($entity = ''){
 	// 注意!!! css的top是反方向的y轴, 赋值时使用 0-y 即可
 	// 注意!!! .debug.yawAngle偏航角的角度需要 -90, 因为dom是歪的
 
@@ -108,9 +102,9 @@ async function update_place_to_player($entity = ''){
 		0 - $c.entity[$id].place[1],
 	];
 
-	geb($id).style.left = $xy[0] + 'px';
-	geb($id).style.top = $xy[1] + 'px';
-	geb($id).getElementsByClassName('debug yawAngle')[0].style.transform = 'rotate('+ ($c.entity[$id].place[3] - 90) +'deg)';
+	lib.geb($id).style.left = $xy[0] + 'px';
+	lib.geb($id).style.top = $xy[1] + 'px';
+	lib.geb($id).getElementsByClassName('debug yawAngle')[0].style.transform = 'rotate('+ ($c.entity[$id].place[3] - 90) +'deg)';
 
 	// 添加到实体移动队列
 	if($t.queue.move.indexOf($id) === -1){
@@ -120,19 +114,21 @@ async function update_place_to_player($entity = ''){
 	return true;
 };
 
+
 // 更新需要缩放的层的缩放中心
-async function update_place_to_transformOrigin(){
+lib.update_place_to_transformOrigin = async function (){
 	let $xy = [
 		$c.entity[$c.player.id].place[0],
 		0 - $c.entity[$c.player.id].place[1],
 	];
 	// 将背景层和玩家层的缩放中心调整到玩家位置
-	geb('all-player').style.transformOrigin = $xy[0] +'px '+ $xy[1] +'px';
-	geb('background').style.transformOrigin = $xy[0] +'px '+ $xy[1] +'px';
+	lib.geb('all-player').style.transformOrigin = $xy[0] +'px '+ $xy[1] +'px';
+	lib.geb('background').style.transformOrigin = $xy[0] +'px '+ $xy[1] +'px';
 };
 
+
 // 更新背景的坐标
-async function update_place_to_background(){
+lib.update_place_to_background = async function (){
 	// 注意!!! css的top是反方向的y轴, 赋值时使用 0-y 即可
 
 	let $xy = [
@@ -140,20 +136,15 @@ async function update_place_to_background(){
 		0 - (0 - document.documentElement.clientHeight / 2 + (0 - $c.entity[$c.player.id]?.place[1] || 0)) + 'px',
 	];
 
-	geb('all-player').style.left = $xy[0];
-	geb('all-player').style.top = $xy[1];
-	geb('background').style.left = $xy[0];
-	geb('background').style.top = $xy[1];
-};
-
-// 清空实体
-function delEntityAll(){
-	geb('all-player').innerHTML = '';
+	lib.geb('all-player').style.left = $xy[0];
+	lib.geb('all-player').style.top = $xy[1];
+	lib.geb('background').style.left = $xy[0];
+	lib.geb('background').style.top = $xy[1];
 };
 
 
 // 判断一个坐标是否在一个矩形范围内, (矩形中心坐标, 矩形半径, 判断的坐标)
-function isOverlap(p1, d, p2){
+lib.isOverlap = function (p1, d, p2){
 	if(p1[0] + d > p2[0]
 	&& p2[0] + d > p1[0]
 	&& p1[1] + d > p2[1]
@@ -164,7 +155,7 @@ function isOverlap(p1, d, p2){
 
 // 显示消息到聊天框
 // $m1 = 不需要特殊处理的消息, 比如玩家名/消息前缀; $m2 = 消息内容
-async function addMessage($m1, $m2, $tp){
+lib.addMessage = async function ($m1, $m2, $tp){
 	$tp = {
 		class: $tp.class || 'new',
 		playerID: $tp.playerID || '',
@@ -172,15 +163,15 @@ async function addMessage($m1, $m2, $tp){
 	}
 
 	// 删除一条旧消息, 如果有的话
-	let $dom = geb('message-list').getElementsByTagName('p');
+	let $dom = lib.geb('message-list').getElementsByTagName('p');
 	for(let key = 0; $dom.length >= 256; key++){ // 删除256条之前的
 		$dom[key].remove();
 	}
 	$dom = null;
 
 	// 解析消息中的特殊文本
-	$m2 = filter($m2);
-	$m1 = filter($m1);
+	$m2 = lib.filter($m2);
+	$m1 = lib.filter($m1);
 	$m2 = $m2
 		// 图片 `![描述](url)` // loading="lazy"
 		.replace(/\!\[([^\]])?\]\((https?\:\/\/[0-9a-zA-Z](?:[-.\w]*[0-9a-zA-Z])*(?:\:(?:0-9)*)*(?:\/?)(?:[a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%$#_\=]*))\s?(?:\s+\"([^\"])\")?\)/gi, '<img alt="$1" src="$2" title="$3" />')
@@ -213,12 +204,12 @@ async function addMessage($m1, $m2, $tp){
 	let $p = document.createElement('p');
 		$p.setAttribute('class', $tp.class);
 		$p.innerHTML = `<span class="m1"><span class="name">${$m1}</span></span><span class="m2">${$m2}</span>`;
-	geb('message-list').appendChild($p);
+	lib.geb('message-list').appendChild($p);
 
 	// 消息也在玩家名称上方显示
 	// if($tp.playerID !== ''){
 	// 	// 获取指定玩家的气泡框
-	// 	let $dom = geb($tp.playerID).querySelector('.top_text > span.message');
+	// 	let $dom = lib.geb($tp.playerID).querySelector('.top_text > span.message');
 	// 	// 如果气泡框已经打开
 	// 	if($dom.classList.contains('-quit') === false){
 	// 		// 关闭后填充消息再重新打开
@@ -242,11 +233,12 @@ async function addMessage($m1, $m2, $tp){
 	}
 };
 
+
 // 动效库
-async function animationLib($id, $m){
+lib.animationLib = async function ($id, $m){
 	if($id === '主体放大'){
 		// 遍历指定class的元素
-		Array.prototype.forEach.call(geb('main').getElementsByClassName('moveFollowLayer'), (e) => {
+		Array.prototype.forEach.call(lib.geb('main').getElementsByClassName('moveFollowLayer'), (e) => {
 			e.classList.add('_animationLib_default');
 			if($m === true){
 				e.classList.add('_animationLib_主体放大');
@@ -257,25 +249,27 @@ async function animationLib($id, $m){
 	}else
 
 	if($id === '上下黑边'){
-		geb('_window').classList.add('_animationLib_default');
+		lib.geb('_window').classList.add('_animationLib_default');
 		if($m === true){
-			geb('_window').classList.add('_animationLib_上下黑边');
+			lib.geb('_window').classList.add('_animationLib_上下黑边');
 		}else{
-			geb('_window').classList.remove('_animationLib_上下黑边');
+			lib.geb('_window').classList.remove('_animationLib_上下黑边');
 		}
 	}
 };
 
+
 // 判断指定数组2是否包含数组1
-function triggerOK($arr1, $arr2){
+lib.triggerOK = function ($arr1, $arr2){
 	if($arr2.join().indexOf($arr1.join()) === 0){
 		return true;
 	}
 	return false;
 };
 
+
 // btnStyleSwitch 按钮样式切换, 添加或删除 -open 标签
-function btnSS($this){
+lib.btnSS = function ($this){
 	if($this.classList.contains('-open')){
 		$this.classList.remove('-open');
 		return false;
@@ -285,8 +279,20 @@ function btnSS($this){
 	}
 };
 
+
+// 将数据包放入网络队列, $cover=true: 覆盖重复的数据, false: 保留旧数据
+lib.netQueue = function ($id, $data, $mode = true){
+	$w.net.postMessage({
+		type: 'netQueue',
+		mode: $mode,
+		id: $id,
+		data: $data,
+	});
+};
+
+
 //创建桌面通知
-function _Notification($title, $message, $clear = true){
+lib.setNotification = function ($title, $message, $clear = true){
 	Notification.requestPermission(($p) => { // 权限
 		if($p === 'granted'){
 			//弹出通知 //全局变量

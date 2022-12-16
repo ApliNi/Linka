@@ -95,27 +95,27 @@ db.add([
 					{
 						type: 'js',
 						code: `
-							geb('logo-en').style.transform = 'rotate3d(-3, -2, 2, 306deg)';
-							geb('logo-en').style.width = '692px';
+							lib.geb('logo-en').style.transform = 'rotate3d(-3, -2, 2, 306deg)';
+							lib.geb('logo-en').style.width = '692px';
 
-							geb('logo-zh').style.transform = 'rotate3d(-3, 3, 1, 319deg)';
-							geb('logo-zh').style.position = 'absolute';
-							geb('logo-zh').style.width = '640px';
-							geb('logo-zh').style.top = '-113px';
-							geb('logo-zh').style.left = '358px';
+							lib.geb('logo-zh').style.transform = 'rotate3d(-3, 3, 1, 319deg)';
+							lib.geb('logo-zh').style.position = 'absolute';
+							lib.geb('logo-zh').style.width = '640px';
+							lib.geb('logo-zh').style.top = '-113px';
+							lib.geb('logo-zh').style.left = '358px';
 						`,
 					},
 					{
 						type: 'js',
 						code: `
-							geb('logo-en').style.transform = '';
-							geb('logo-en').style.width = '';
+							lib.geb('logo-en').style.transform = '';
+							lib.geb('logo-en').style.width = '';
 
-							geb('logo-zh').style.transform = '';
-							geb('logo-zh').style.position = 'absolute';
-							geb('logo-zh').style.width = '';
-							geb('logo-zh').style.top = '0';
-							geb('logo-zh').style.left = '1100px';
+							lib.geb('logo-zh').style.transform = '';
+							lib.geb('logo-zh').style.position = 'absolute';
+							lib.geb('logo-zh').style.width = '';
+							lib.geb('logo-zh').style.top = '0';
+							lib.geb('logo-zh').style.left = '1100px';
 						`,
 					},
 				],
@@ -290,7 +290,7 @@ db.add([
 						},
 						{
 							type: 'js', // 初始化商人计数器
-							code: `if($d.npc?.npc9 === undefined) $d.npc.npc9 = {sellOut: false}`,
+							code: `if($data.npc?.npc9 === undefined) $data.npc.npc9 = {sellOut: false}`,
 						},
 						{
 							type: 'program',
@@ -321,7 +321,7 @@ db.add([
 									type: 'js', // 修改移动速度, 更新商品计数器
 									code: `
 										$t.WASD.stepSize = 32;
-										$d.npc.npc9 = true;
+										$data.npc.npc9 = true;
 									`,
 								},
 								{type: 'text', text: '感觉如何(╹ڡ╹ )'},
