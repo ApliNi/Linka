@@ -3,7 +3,8 @@
 <html lang="zh-cmn-Hans">
 <head>
 	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=0.7, minimum-scale=0.7, maximum-scale=0.7, user-scalable=no">
+	<meta name="viewport" content="width=device-width, initial-scale=0.7, minimum-scale=0.7, maximum-scale=0.7, user-scalable=0">
+	<meta content="telephone=no" name="format-detection">
 
 	<title>[IpacEL]/ LinkaC.测试</title>
 	<meta name="Description" content="LinkaC的测试网页">
@@ -29,6 +30,7 @@
 	<!-- 流 -->
 	<script type="text/javascript" src="cake/flow/ui.js?v=0.1.2"></script>
 
+	<!-- 动态加载资源, 从 ./LinkaC.json -->
 </head>
 <body>
 	<div id="main" style="opacity: 0;">
@@ -104,7 +106,8 @@
 
 				<br />
 				<p>v0.3更新日志: </p>
-				<p> - !c重写前端, 实现与服务器相同的扩展能力</p>
+				<p> - c一些细节优化</p>
+				<p> - !c重写前端, 实现与服务器相同的扩展能力 !!待测试</p>
 				<p> - c通过CSS实现更平滑的Tpsbar</p>
 				<p> - c一些错误修复</p>
 				<p> - a更好的心跳包和ping显示, 将连接超时时间改为20秒</p>
@@ -210,9 +213,9 @@
 				background-image: radial-gradient(tan 40%, transparent 0), radial-gradient(tan 0%, transparent 0);
 				filter: drop-shadow(-2px 2px 5px rgb(0, 0, 0, 50%));
 				background-size: 40px 40px;"></div>
-				<img alt="木桌" src="https://i.328888.xyz/2022/12/10/fvISo.png" width="325px" style="left: 335px; top: 108px; filter: drop-shadow(-2px 2px 5px rgb(0, 0, 0, 50%)); position: absolute; z-index: 21;">
-				<img alt="花瓶" src="https://i.328888.xyz/2022/12/10/fPxn3.png" width="150px" style="position: absolute; left: 425px; top: 28px; z-index: 21;">
-				<img alt="笔记本电脑" src="https://i.328888.xyz/2022/12/10/fvrVN.png" width="150px" style="position: absolute; left: 368px; top: 107px; filter: drop-shadow(-2px 1px 2px rgb(0, 0, 0, 50%)); z-index: 21;">
+				<img alt="木桌" decoding="async" importance="low" loading="lazy" src="https://i.328888.xyz/2022/12/10/fvISo.png" width="325px" style="left: 335px; top: 108px; filter: drop-shadow(-2px 2px 5px rgb(0, 0, 0, 50%)); position: absolute; z-index: 21;">
+				<img alt="花瓶" decoding="async" importance="low" loading="lazy" src="https://i.328888.xyz/2022/12/10/fPxn3.png" width="150px" style="position: absolute; left: 425px; top: 28px; z-index: 21;">
+				<img alt="笔记本电脑" decoding="async" importance="low" loading="lazy" src="https://i.328888.xyz/2022/12/10/fvrVN.png" width="150px" style="position: absolute; left: 368px; top: 107px; filter: drop-shadow(-2px 1px 2px rgb(0, 0, 0, 50%)); z-index: 21;">
 			</div>
 		</div>
 

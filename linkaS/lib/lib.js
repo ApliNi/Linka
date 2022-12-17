@@ -1,6 +1,6 @@
 const db = require('./db.js');
-
 // 基础库
+
 
 // 生成唯一id
 function uuid($m = ''){
@@ -8,6 +8,7 @@ function uuid($m = ''){
 	if($m === ''){return $i;}
 	if($m === 'key'){return $i.split('').sort(() => {return Math.random() > 0.7 ? 1 : -1}).join('');}
 };
+
 
 // 判断是否为json, 如果是则转换
 function toJSON($i){
@@ -19,6 +20,7 @@ function toJSON($i){
 		return false;
 	}
 };
+
 
 // 注销并删除一个客户端
 function logoutClient($id, $message = ''){
@@ -48,12 +50,14 @@ function logoutClient($id, $message = ''){
 	}
 };
 
+
 // 随机选择一位玩家
 function randomPlayer(){
 	let $player = Object.keys($c.clients);
 	$player = $c.clients[$player[Math.floor(Math.random() * $player.length)]];
 	return $player;
 };
+
 
 // 计算坐标移动到另一个坐标一定距离后的位置
 function moveRectangleToCoordinate($p1, $p2, $r){ // 当前坐标, 目标坐标, 移动距离
@@ -64,6 +68,7 @@ function moveRectangleToCoordinate($p1, $p2, $r){ // 当前坐标, 目标坐标,
 	let $total = Math.sqrt(Math.pow($dx, 2) + Math.pow($dy, 2));
 	return [Math.round($p1[0] + $r * $dx / $total), Math.round($p1[1] + $r * $dy / $total)];
 };
+
 
 // 在玩家周围n距离外生成随机坐标
 function randomCoordinate_playerOutside($r){
@@ -98,6 +103,7 @@ function randomCoordinate_playerOutside($r){
 	return [$xy, $player];
 };
 
+
 // 添加到网络队列
 function to_queue_net($entity_id, $name, $data){
 	// 如果为空则创建
@@ -106,6 +112,7 @@ function to_queue_net($entity_id, $name, $data){
 	}
 	$t.queue_net[$entity_id][$name] = $data;
 };
+
 
 // 为客户端准备服务器同步数据
 function getSyncDataAll(){
@@ -139,6 +146,7 @@ function getSyncDataAll(){
 	return $arr;
 };
 
+
 // 获取单个玩家的同步数据
 function getSyncDataPlayer($id){
 	let $player = db.get({id: $id});
@@ -149,6 +157,7 @@ function getSyncDataPlayer($id){
 		place: $player.place,
 	};
 };
+
 
 // 判断服务器中是否有这个玩家, 以及密钥是否正确
 function enter_playerOK($tp){
@@ -162,10 +171,35 @@ function enter_playerOK($tp){
 	return false;
 };
 
+
 // 判断数据类型, 简写
 function is(i){
 	return Object.prototype.toString.call(i);
 };
+
+
+// 获取客户端ip, 返回 [ip, port, 连接方式]
+function getIP(req){
+	let $noIP = ['127.0.0.1', '::ffff:127.0.0.1', '::1'];
+
+	// console.log(req.headers['proxy_protocol_addr']);
+	// console.log(req.headers['remote_addr']);
+	// console.log(req.connection.remoteAddress);
+
+	// nginx 获取的代理服务器转发的客户端地址
+	if(req.headers['proxy_protocol_addr'] && $noIP.indexOf(req.headers['proxy_protocol_addr']) === -1){
+		return [req.headers['proxy_protocol_addr'], req.headers['proxy_protocol_port'], 'proxy'];
+	}else
+
+	// nginx 获取的地址
+	if(req.headers['remote_addr'] && $noIP.indexOf(req.headers['remote_addr']) === -1){
+		return [req.headers['remote_addr'], req.headers['remote_port'], 'direct'];
+	}else
+
+	// Node.js 获取的地址
+	return [req.connection.remoteAddress, req.connection.remotePort, 'direct_node'];
+};
+
 
 module.exports = {
 	uuid,
@@ -179,6 +213,7 @@ module.exports = {
 	getSyncDataPlayer,
 	enter_playerOK,
 	is,
+	getIP,
 };
 
 

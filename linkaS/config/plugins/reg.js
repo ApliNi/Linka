@@ -42,6 +42,8 @@ $e.player.on('reg', ($eData, $tp, $player) => {
 	// 将玩家添加到数据库
 	db.add({
 		type: 'player',
+		ip: $tp.ip_port[0],
+		port: $tp.ip_port[1],
 		id: $id,
 		ws: $tp.ws,
 		key: $key,	// 通讯密钥

@@ -107,10 +107,11 @@ function start_ws(){
 		// 停止网络循环, 注销ws
 		clearInterval($c.loop._net);
 		$ws.close();
+		$ws = null;
 
 		// 掉线重连
 		console.log('[WebSocket] WebSocket 连接已断开, 4秒后重新连接');
-		setTimeout(func.start_ws.func, 4000);
+		setTimeout(start_ws, 4000);
 	};
 };
 

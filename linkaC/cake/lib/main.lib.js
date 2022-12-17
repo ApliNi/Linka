@@ -8,6 +8,10 @@ mainLib.ajax = function ($url, back, $_errNum = 0){
 	if($_errNum >= 4){
 		if(back) back(false, undefined);
 	}
+	// 始终加载新版本
+	if($config.forceUpdate === true){
+		$url += '?&time='+ Date.now();
+	}
 	// AJAX
 	let $xhr = new XMLHttpRequest();
 		$xhr.open('get', $url);
@@ -32,6 +36,10 @@ mainLib.ajax = function ($url, back, $_errNum = 0){
 
 // 加载程序文件
 mainLib.loadCode = function ($url, back){
+	// 始终加载新版本
+	if($config.forceUpdate === true){
+		$url += '?&time='+ Date.now();
+	}
 	// 判断是css还是js
 	let $type = /[^\/\\\&\?\#]+\.([js|css]+)/g.exec($url);
 	if($type !== null && $type[1] !== undefined){
@@ -92,27 +100,28 @@ mainLib.starter = function ($url, back){
 			console.log('[初始化] [配置] 配置文件加载成功', $config.LinkaC);
 			load_code_array();
 		}else{
-			alert('配置加载失败\n请尝试使用 Ctrl+F5 或清理此网页的缓存后刷新重试. ');
+			console.log('[初始化] [配置] 配置文件加载失败 !');
+			alert('配置加载失败\n  - 请尝试使用 Ctrl+F5 或清理此网页的缓存后刷新重试. ');
+			back(false, '-1');
 		}
 	});
 
 	// 加载模块文件
 	function load_code_array(){
+		console.log('[初始化] [模块] 开始加载模块...');
 		let $num = 0;
+		let $err = 0;
 		// 遍历资源文件
-		$config.LinkaC.file.forEach((e) => {
-			console.log('[初始化] [模块] 正在加载: '+ e);
+		$config.LinkaC.plugins.forEach((e) => {
+			// console.log('[初始化] [模块] 正在加载: '+ e);
 			// 加载资源文件
 			mainLib.loadCode(e, ($s) => {
-				if($s === true){
-					$num ++;
-					if($num >= $config.LinkaC.file.length){
-						$e.system.emit('start_main_starter');
-						if(back) back(true);
-					}
-				}else{
-					$e.system.emit('end_main_starter');
-					if(back) back(false);
+				$num ++;
+				if($s === false) $err ++;
+				// 全部加载完成
+				if($num === $config.LinkaC.plugins.length){
+					// 如果有加载失败就返回 false 和数量
+					if(back) back(($err === 0)? true : false, $err);
 				}
 			});
 		});

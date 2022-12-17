@@ -33,7 +33,6 @@ lib.render_tpsbar = async function ($mspt, $ping){
 	$dom.setProperty('--tpsbar_mspt', $mspt);
 	$dom.setProperty('--tpsbar_ping', $ping);
 	$dom.setProperty('--tpsbar_width', $a +'%');
-	$dom.setProperty('--tpsbar_max_width', '100%');
 };
 
 
@@ -174,7 +173,7 @@ lib.addMessage = async function ($m1, $m2, $tp){
 	$m1 = lib.filter($m1);
 	$m2 = $m2
 		// 图片 `![描述](url)` // loading="lazy"
-		.replace(/\!\[([^\]])?\]\((https?\:\/\/[0-9a-zA-Z](?:[-.\w]*[0-9a-zA-Z])*(?:\:(?:0-9)*)*(?:\/?)(?:[a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%$#_\=]*))\s?(?:\s+\"([^\"])\")?\)/gi, '<img alt="$1" src="$2" title="$3" />')
+		.replace(/\!\[([^\]])?\]\((https?\:\/\/[0-9a-zA-Z](?:[-.\w]*[0-9a-zA-Z])*(?:\:(?:0-9)*)*(?:\/?)(?:[a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%$#_\=]*))\s?(?:\s+\"([^\"])\")?\)/gi, '<img alt="$1" decoding="async" loading="lazy" src="$2" title="$3" />')
 		// URL
 		.replace(/(\<[^\>]+)?(https?\:\/\/[0-9a-zA-Z](?:[-.\w]*[0-9a-zA-Z])*(?:\:(?:0-9)*)*(?:\/?)(?:[a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%$#_\=]*)?)([^\<]+\>)?/gi, ($0, $1, $2, $3) => {
 			if($1 === undefined && $3 === undefined){
@@ -229,7 +228,7 @@ lib.addMessage = async function ($m1, $m2, $tp){
 
 	// 桌面通知
 	if($tp.notification === true){
-		_Notification($m1, $m2);
+		lib.desktopNotification($m1, $m2);
 	}
 };
 
@@ -292,7 +291,7 @@ lib.netQueue = function ($id, $data, $mode = true){
 
 
 //创建桌面通知
-lib.setNotification = function ($title, $message, $clear = true){
+lib.desktopNotification = async function ($title, $message, $clear = true){
 	Notification.requestPermission(($p) => { // 权限
 		if($p === 'granted'){
 			//弹出通知 //全局变量
@@ -309,5 +308,4 @@ lib.setNotification = function ($title, $message, $clear = true){
 		}
 	});
 };
-// 请求权限
-if(Notification.permission !== 'granted') _Notification('消息通知', '当页面后台运行时, 您将在这里收到聊天消息');
+

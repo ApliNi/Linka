@@ -3,8 +3,8 @@ const WebSocket = require('ws');
 log.out('INFO', '[网络] 正在启动 WebSocket...');
 const wss = new WebSocket.Server({port: 2027});
 
-// 监听客户端的消息
-wss.on('connection', (ws) => {
+// 客户端连接
+wss.on('connection', (ws, req) => {
 
 	// 通讯: 客户端和服务端均通过发送数组, 软件通过遍历数组得到所有数据内容, 再将这些内容交给主程序处理
 	// {
@@ -12,6 +12,11 @@ wss.on('connection', (ws) => {
 	// 	key: 通讯密钥,
 	// 	data: {数据内容},
 	// }
+
+	// 获取ip地址
+	let $ip_port = lib.getIP(req);
+	log.out('INFO', '[网络] 建立连接 ['+ $ip_port.join(', ') +']');
+	$e.net.emit('connection', $ip_port, ws);
 
 	// 收到消息
 	ws.on('message', (m) => {
@@ -35,21 +40,11 @@ wss.on('connection', (ws) => {
 
 			// 遍历数据数组
 			$tp.data.forEach((e) => {
-				// 转换为单个数据的格式
-				// let $s = main.main({
-				// 	id: $tp.id,
-				// 	key: $tp.key,
-				// 	data: e,
-				// }, ws, $tp.time, $player);
-				// // 功能模块返回无效数据
-				// if($s === false){
-				// 	log.out('WARN', '[功能] ['+ e?.type +'] 无效数据, 来自玩家: '+ $tp.id);
-				// };
-
 				// 是否存在这个事件名
 				if(db.getif({type: 'player', name: e.type}, $c.Event)){
 					// 转换为单个数据的格式
 					let $tp1 = {
+						ip_port: $ip_port,
 						id: $tp.id,
 						key: $tp.key,
 						data: e,
@@ -94,15 +89,15 @@ wss.on('connection', (ws) => {
 	});
 
 	// 连接断开
-	ws.on('close', (error) => {
-		log.out('INFO', '[网络] 连接断开: id='+ ws.id + ', error='+ error);
-		if(typeof ws.id === 'string') lib.logoutClient(ws.id); // 跑了
+	ws.on('close', (code) => {
+		log.out('INFO', '[网络] 连接断开 ['+ $ip_port.join(', ') + '] Code='+ code);
+		lib.logoutClient(ws.id); // 跑了
 	});
 
 	// 连接丢失
-	ws.on('disconnect', (error) => {
-		log.out('INFO', '[网络] 连接丢失: id='+ ws.id + ', error='+ error);
-		if(typeof ws.id === 'string') lib.logoutClient(ws.id, '连接丢失');
+	ws.on('disconnect', (code) => {
+		log.out('INFO', '[网络] 连接丢失 ['+ $ip_port.join(', ') + '] Code='+ code);
+		lib.logoutClient(ws.id, '连接丢失');
 	});
 
 });

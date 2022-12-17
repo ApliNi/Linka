@@ -1,4 +1,5 @@
 // LinkaS ... main
+console.log(`|        |/\n| _| |\\  |  //| //\n- LinkaS v0.1.1\n`);
 
 
 // 软件配置

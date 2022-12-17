@@ -4,7 +4,7 @@ $e.system.on('onkeydown', async (event) => {
 	// console.log("按钮按下", event);
 
 	if(event.code === 'Tab'){
-		event.preventDefault();
+		event?.preventDefault();
 		// 其他组件
 		if($t.message.enable === true){ // 聊天组件
 			// 如果是指令
@@ -33,7 +33,7 @@ $e.system.on('onkeydown', async (event) => {
 
 	// 屏蔽浏览器默认的F3功能键
 	if(event.code === 'F3'){
-		event.preventDefault();
+		event?.preventDefault();
 	}else
 
 

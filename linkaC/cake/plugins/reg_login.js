@@ -6,6 +6,7 @@ $e.net.on('ws.onopen', () => {
 		type: 'reg',
 		name: $c.player.name,
 	});
+	console.log('[注册] 正在注册...');
 });
 
 
@@ -16,6 +17,8 @@ $e.player.on('reg', ($tp) => {
 	$c.player.key = $tp.key;
 	// 同步到worker线程
 	$w.net.postMessage({type: 'add_$player', data: $c.player});
+
+	console.log('[注册] 分配基础数据: ID='+ $c.player.id +', KEY='+ $c.player.key);
 });
 
 

@@ -1,7 +1,6 @@
 
 // 版本号
 log.out('INFO', '[信息] Node.js '+ process.version);
-log.out('INFO', '[信息] LinkaS  v0.0.1');
 
 // 路径
 log.out('INFO', '[信息] 服务器根目录: '+ $config.rootPath);

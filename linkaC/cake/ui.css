@@ -2,13 +2,17 @@ body{
 	background-image: linear-gradient(90deg, rgba(180, 180, 180, 0.15) 5%, rgba(0, 0, 0, 0) 5%),linear-gradient(rgba(180, 180, 180, 0.15) 5%, rgba(0, 0, 0, 0) 5%);
 	background-size: 47px 47px;
 
+	/* 防止滚动, 对Safari无效 */
+	overflow: hidden;
 	overflow-x: hidden;
 	overflow-y: hidden;
+	-webkit-overflow-scrolling: auto;
+	position: fixed;
 
-	/* 禁用webkit内核浏览器文字大小调整功能: 解决ios文字大小不统一 */
+	/* 禁用webkit内核浏览器文字大小调整功能: 解决Safari文字大小不统一 */
 	-webkit-text-size-adjust: none;
 
-	/* 禁止选中文本 */
+	/* 禁止选中文本, 因为双指操作会触发各种选中 */
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	user-select: none;

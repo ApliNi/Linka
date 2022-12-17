@@ -44,11 +44,11 @@ function _sensor($mode, $this){
 	sensorPermissionApplication(() => {
 		if($mode === true){ // 按钮按下
 			if($p === true){
-				console.log('传感器权限申请成功');
+				console.log('[传感器控制] 传感器权限申请成功');
 				$c.plugins.sensor.enable = true;
 				$this.classList.add('-pok'); // 橙色按钮
 			}else{
-				console.log('传感器权限申请失败');
+				console.log('[传感器控制] 传感器权限申请失败');
 				// 恢复按钮状态, 关闭使能
 				$c.plugins.sensor.enable = false;
 				lib.btnSS($this);

@@ -1,5 +1,5 @@
 {
-	"file": [
+	"plugins": [
 		"cake/lib/info.css",
 		"cake/lib/animationLib.css",
 

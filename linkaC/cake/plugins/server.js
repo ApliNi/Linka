@@ -2,7 +2,6 @@
 // 处理服务器同步数据
 $e.player.on('syncServerData', ($tp) => {
 	$c.entity = $tp.data.entity;
-	//$c.index_entity = $tp.data.index_entity;
 	$c.index_entity.type = [];
 
 	// 清空现有实体
@@ -29,6 +28,8 @@ $e.player.on('syncServerData', ($tp) => {
 			}
 		}
 	}
+	// 更新背景层
+	lib.update_place_to_background();
 
 	lib.geb('message-list').innerHTML = '';
 	// 遍历消息列表
@@ -45,6 +46,12 @@ $e.player.on('syncServerData', ($tp) => {
 	// 启动循环
 	$c.loop.run('tps', true);
 	$c.loop.run('ui', true);
+
+	// 注册成功
+	$e.player.emit('login_ok');
+
+	// tpsbar, 页面加载完成的动画
+	lib.geb('tpsbar').style.setProperty('--tpsbar_max_width', '100%');
 });
 
 

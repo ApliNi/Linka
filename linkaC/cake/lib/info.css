@@ -86,15 +86,19 @@
 	overflow-y: scroll;
 	background-color: rgb(0 0 0 / 42%);
 	pointer-events: auto;
+	scroll-behavior: smooth;
 	z-index: 101;
 }
 #message.-open > #message-list > p{
+	transition: all .2s ease, padding-top 0s, padding-bottom 0s;
 	opacity: 1 !important; /* !important 覆盖动画样式, 但在Safari中无效 */
 	height: auto !important;
 	padding-top: 4px !important;
-	transition: all .2s ease;
 	background-color: transparent;
 	/* margin: 10px 0; */
+}
+#message.-open > #message-list > p:last-child{
+	padding-bottom: 4px;
 }
 #message.-open > #message-list > p:hover{
 	background-color: rgb(0 0 0 / 3%);
@@ -135,7 +139,8 @@
 	max-height: calc(var(--message_list_max_height) * 0.3);
 	outline: solid 1px transparent;
 	padding: 10px;
-	width: 100%;
+	/* width: 100%; Safari不会自适应宽高比, 导致图片拉长 */
+	/* aspect-ratio: 1/1; */
 }
 .m2 img:first-child{
 	/* margin-top: -10px; */

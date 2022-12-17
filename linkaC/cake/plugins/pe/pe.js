@@ -12,10 +12,18 @@ if((lib.isPE() === true || lib.fromUrl('lib.isPE') === 'true') && lib.fromUrl('l
 		if(now - lastTouchEnd <= 300) e.preventDefault();
 		lastTouchEnd = now;
 	}, false);
-	// 禁止页面滚动
-	document.body.addEventListener('touchmove', function(e){
- 		e.preventDefault();
-	}, {passive: false});
+	// 禁止页面滚动, 什么垃圾SAFARI
+	// scrollTo(0, 0); // 防止页面在每次刷新中自动跑偏
+	// document.addEventListener('touchmove', function(e){
+	// 	// console.log(e.composedPath()[0].localName);
+	// 	// 防止误伤非body元素
+	// 	if(e.composedPath()[0].localName !== 'div') e.preventDefault();
+	// window.scrollTo(0, 0);
+	// }, {passive: false});
+	window.addEventListener('scroll', function(e){
+		e.preventDefault();
+		window.scrollTo(0, 0);
+	});
 
 	// 禁用键盘, 改为摇杆
 	$t.WASD.isKeyboard = false;
@@ -116,7 +124,8 @@ if((lib.isPE() === true || lib.fromUrl('lib.isPE') === 'true') && lib.fromUrl('l
 	lib.geb('plugins_key_box').ontouchstart = function(e){
 		let $date = e.composedPath()[0].dataset;
 		if($date?.code){
-			_document_onkeydown({code: $date.code});
+			$e.system.emit('onkeydown', {code: $date.code});
+			// _document_onkeydown({code: $date.code});
 		}else
 
 		if($date?.onfunc){
@@ -127,7 +136,8 @@ if((lib.isPE() === true || lib.fromUrl('lib.isPE') === 'true') && lib.fromUrl('l
 	lib.geb('plugins_key_box').ontouchend = function(e){
 		let $date = e.composedPath()[0].dataset;
 		if($date?.code){
-			_document_onkeyup({code: $date.code});
+			$e.system.emit('onkeyup', {code: $date.code});
+			// _document_onkeyup({code: $date.code});
 		}else
 
 		if($date?.offfunc){
