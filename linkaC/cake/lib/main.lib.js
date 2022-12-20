@@ -35,58 +35,51 @@ mainLib.ajax = function ($url, back, $_errNum = 0){
 
 
 // 加载程序文件
-mainLib.loadCode = function ($url, back){
+mainLib.loadCode = function ($tp, back){
 	// 始终加载新版本
 	if($config.forceUpdate === true){
-		$url += '?&time='+ Date.now();
+		$tp.url += '?&time='+ Date.now();
 	}
 	// 判断是css还是js
-	let $type = /[^\/\\\&\?\#]+\.([js|css]+)/g.exec($url);
-	if($type !== null && $type[1] !== undefined){
-		$type = $type[1].toLowerCase();
-		// js
-		if($type === 'js'){
-			// 创建script标签
-			let $dom = document.createElement('script');
-				$dom.type = 'text/javascript';
-				$dom.src = $url;
-				$dom.onload = function(){
-					console.log('[初始化] [模块] [JS ] 加载成功: '+ $url);
-					$e.system.emit('mainLib_loadCode_ok.'+ $url);
-					if(back) back(true, $url);
-				};
-				$dom.onerror = function(){
-					console.log('[初始化] [模块] [JS ] 加载失败: '+ $url);
-					$e.system.emit('mainLib_loadCode_err.'+ $url);
-					if(back) back(false, $url);
-				};
-			document.documentElement.firstChild.appendChild($dom);
-		}else
-		// css
-		if($type === 'css'){
-			let $dom = document.createElement('link');
-				$dom.rel = 'stylesheet';
-				$dom.href = $url;
-				$dom.onload = function(){
-					console.log('[初始化] [模块] [CSS] 加载成功: '+ $url);
-					$e.system.emit('mainLib_loadCode_ok.'+ $url);
-					if(back) back(true, $url);
-				};
-				$dom.onerror = function(){
-					console.log('[初始化] [模块] [CSS] 加载失败: '+ $url);
-					$e.system.emit('mainLib_loadCode_err.'+ $url);
-					if(back) back(false, $url);
-				};
-			document.getElementsByTagName('head')[0].appendChild($dom);
-		}else{
-			console.log('[初始化] [模块] ['+ $type +'] 不支持的格式: '+ $url);
-			$e.system.emit('mainLib_loadCode_err.'+ $url);
-			if(back) back(false, $url);
-		}
+	// let $type = /[^\/\\\&\?\#]+\.([js|css]+)/g.exec($tp.url);
+	// js
+	if($tp.type === 'js'){
+		// 创建script标签
+		let $dom = document.createElement('script');
+			$dom.type = 'text/javascript';
+			$dom.src = $tp.url;
+			$dom.onload = function(){
+				console.log('[初始化] [模块] [JS ] 加载成功: ', $tp);
+				// $e.system.emit('mainLib_loadCode_ok.', $tp);
+				if(back) back(true, $tp);
+			};
+			$dom.onerror = function(){
+				console.log('[初始化] [模块] [JS ] 加载失败: ', $tp);
+				// $e.system.emit('mainLib_loadCode_err.', $tp);
+				if(back) back(false, $tp);
+			};
+		document.documentElement.firstChild.appendChild($dom);
+	}else
+	// css
+	if($tp.type === 'css'){
+		let $dom = document.createElement('link');
+			$dom.rel = 'stylesheet';
+			$dom.href = $tp.url;
+			$dom.onload = function(){
+				console.log('[初始化] [模块] [CSS] 加载成功: ', $tp);
+				// $e.system.emit('mainLib_loadCode_ok.', $tp);
+				if(back) back(true, $tp);
+			};
+			$dom.onerror = function(){
+				console.log('[初始化] [模块] [CSS] 加载失败: ', $tp);
+				// $e.system.emit('mainLib_loadCode_err.', $tp);
+				if(back) back(false, $tp);
+			};
+		document.getElementsByTagName('head')[0].appendChild($dom);
 	}else{
-		console.log('[初始化] [模块] [???] 正则匹配失败: '+ $url);
-		$e.system.emit('mainLib_loadCode_err.'+ $url);
-		if(back) back(false, $url);
+		console.log('[初始化] [模块] ['+ $tp.type +'] 未知格式: ', $tp);
+		// $e.system.emit('mainLib_loadCode_err.', $tp);
+		if(back) back(false, $tp.url);
 	}
 };
 
@@ -110,20 +103,25 @@ mainLib.starter = function ($url, back){
 	function load_code_array(){
 		console.log('[初始化] [模块] 开始加载模块...');
 		let $num = 0;
+		let $ok_num = 0;
 		let $err = 0;
 		// 遍历资源文件
 		$config.LinkaC.plugins.forEach((e) => {
 			// console.log('[初始化] [模块] 正在加载: '+ e);
-			// 加载资源文件
-			mainLib.loadCode(e, ($s) => {
+			// 判断格式
+			if(e?.url && e?.type && e?.info){
 				$num ++;
-				if($s === false) $err ++;
-				// 全部加载完成
-				if($num === $config.LinkaC.plugins.length){
-					// 如果有加载失败就返回 false 和数量
-					if(back) back(($err === 0)? true : false, $err);
-				}
-			});
+				// 加载资源文件
+				mainLib.loadCode(e, ($s) => {
+					$ok_num ++;
+					if($s === false) $err ++;
+					// 全部加载完成
+					if($ok_num === $num){
+						// 如果有加载失败就返回 false 和数量
+						if(back) back(($err === 0)? true : false, $err);
+					}
+				});
+			}
 		});
 	}
 };

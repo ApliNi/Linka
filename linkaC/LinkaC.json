@@ -1,16 +1,28 @@
 {
 	"plugins": [
-		"cake/lib/info.css",
-		"cake/lib/animationLib.css",
+		{"url": "cake/lib/info.css", "type": "css", "info": "信息/消息显示相关css"},
+		{"url": "cake/lib/animationLib.css", "type": "css", "info": "动效库"},
 
-		"cake/plugins/lib/npc.js",
-		"cake/plugins/lib/player_basic.js",
-		"cake/plugins/pe/pe.js",
 
-		"cake/plugins/reg_login.js",
-		"cake/plugins/player.js",
-		"cake/plugins/onkey.js",
-		"cake/plugins/message.js",
-		"cake/plugins/server.js"
+		{"url": "cake/plugins/lib/npc.js", "type": "js", "info": "NPC插件"},
+		{"url": "cake/plugins/pe/pe.js", "type": "js", "info": "提供移动端支持"},
+
+
+		{"url": "cake/plugins/reg_login.js", "type": "js", "info": "注册登录"},
+		{"url": "cake/plugins/player.js", "type": "js", "info": "玩家相关事件"},
+		{"url": "cake/plugins/onkey.js", "type": "js", "info": "键盘事件"},
+		{"url": "cake/plugins/message.js", "type": "js", "info": "消息处理"},
+		{"url": "cake/plugins/server.js", "type": "js", "info": "服务器相关"},
+		{"url": "cake/plugins/window.js", "type": "js", "info": "窗口相关"},
+		{"url": "cake/plugins/F3.js", "type": "js", "info": "调试信息显示器"},
+
+
+		{"url": "cake/plugins/loop/lib/player_basic.js", "type": "js", "info": "玩家基础事件, 准备重写"},
+		{"url": "cake/plugins/loop/player_move.js", "type": "js", "info": "玩家移动"},
+		{"url": "cake/plugins/loop/player_attack.js", "type": "js", "info": "玩家攻击"},
+		{"url": "cake/plugins/loop/player_overlap.js", "type": "js", "info": "玩家与实体碰撞"},
+
+
+		{"info": "最后一个元素, 用于处理不整齐的逗号"}
 	]
 }

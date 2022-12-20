@@ -10,29 +10,24 @@ window.onload = function(){
 // 窗口尺寸变化事件
 window.addEventListener('resize', function(){
 	$e.system.emit('window.resize');
-	// 重新渲染位置
-	$t.queue.reRenderForWindowSize = true;
 });
 
 
 // 按键按下事件
 document.onkeydown = function(event){
 	$e.system.emit('onkeydown', event || window.event);
-	// _document_onkeydown(event);
 };
 
 
 // 按键松开事件
 document.onkeyup = function(event){
 	$e.system.emit('onkeyup', event || window.event);
-	// _document_onkeyup(event);
 };
 
 
 // 窗口失去焦点
 window.onblur = function(){
 	$e.system.emit('window.onblur');
-	// _window_onblur();
 };
 
 

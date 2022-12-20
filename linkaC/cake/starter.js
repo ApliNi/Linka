@@ -71,16 +71,16 @@ new Promise(function(resolve, reject){
 			attack: false,	// 玩家攻击
 			disable_attack: false,
 			overlap: [],	// 在自己的攻击范围内的实体 | 当前碰撞的实体
-			reRenderForWindowSize: false,	// 重新渲染, 根据窗口尺寸
+			// reRenderForWindowSize: false,	// 重新渲染, 根据窗口尺寸
 		},
 		message: {	// 聊天组件
 			enable: false,
 		},
-		F3: {	// F3 调试界面
-			enable: false,	// 使能
-			update: true,	// 循环更新
-			lastUpdateTime: 0,	// 最后更新时间, 防止更新太快浪费cpu
-		},
+		// F3: {	// F3 调试界面
+		// 	enable: false,	// 使能
+		// 	update: true,	// 循环更新
+		// 	lastUpdateTime: 0,	// 最后更新时间, 防止更新太快浪费cpu
+		// },
 		npc_func: {
 			pointerAdd: true,
 			text: {
@@ -94,6 +94,7 @@ new Promise(function(resolve, reject){
 				id: -1,
 			},
 		},
+		plugins: {},	// 插件数据, 自行填充
 	};
 
 

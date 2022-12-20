@@ -3,6 +3,8 @@
 $e.system.on('onkeydown', async (event) => {
 	// console.log("按钮按下", event);
 
+	$e.system.emit('onkeydown.'+ event.code, event);
+
 	if(event.code === 'Tab'){
 		event?.preventDefault();
 		// 其他组件
@@ -31,10 +33,10 @@ $e.system.on('onkeydown', async (event) => {
 
 	}else
 
-	// 屏蔽浏览器默认的F3功能键
-	if(event.code === 'F3'){
-		event?.preventDefault();
-	}else
+	// // 屏蔽浏览器默认的F3功能键
+	// if(event.code === 'F3'){
+	// 	event?.preventDefault();
+	// }else
 
 
 	// 4个方向键
@@ -53,6 +55,8 @@ $e.system.on('onkeydown', async (event) => {
 $e.system.on('onkeyup', async (event) => {
 	// console.log("按钮按下", event);
 
+	$e.system.emit('onkeyup.'+ event.code, event);
+
 	// ESC
 	if(event.code === 'Escape'){
 		// 聊天组件
@@ -67,18 +71,18 @@ $e.system.on('onkeyup', async (event) => {
 		lib.geb('key-tab').style.display = 'none';
 	}else
 
-	// F3 调试界面
-	if(event.code === 'F3'){
-		$t.F3.enable = ($t.F3.enable === true)? false : true;
-		lib.geb('F3').style.display = ($t.F3.enable === true)? 'block' : 'none';
-		if($t.F3.enable === true){
-			lib.geb('all-player').classList.add('-debug');
-			lib.geb('background').classList.add('-debug');
-		}else{
-			lib.geb('all-player').classList.remove('-debug');
-			lib.geb('background').classList.remove('-debug');
-		}
-	}else
+	// // F3 调试界面
+	// if(event.code === 'F3'){
+	// 	$t.F3.enable = ($t.F3.enable === true)? false : true;
+	// 	lib.geb('F3').style.display = ($t.F3.enable === true)? 'block' : 'none';
+	// 	if($t.F3.enable === true){
+	// 		lib.geb('all-player').classList.add('-debug');
+	// 		lib.geb('background').classList.add('-debug');
+	// 	}else{
+	// 		lib.geb('all-player').classList.remove('-debug');
+	// 		lib.geb('background').classList.remove('-debug');
+	// 	}
+	// }else
 
 	// 聊天组件
 	if(event.code === 'KeyT' || event.code === 'Backspace'){
