@@ -38,34 +38,6 @@ new Promise(function(resolve, reject){
 
 	// 全局缓存
 	$t = {
-		// queue_net: {},	// 网络io队列
-		WASD: {	// 玩家移动处理队列
-			disable: false,	// 移动被禁用
-			enable: false,	// 是否需要移动
-			isKeyboard: true,	// 是键盘操作
-			keyboard: {	// 键盘的4个按键
-				KeyW: false,
-				KeyA: false,
-				KeyS: false,
-				KeyD: false,
-			},
-			keyAngle: {	// 固定角度名: 角度
-				KeyW: 0,
-				KeyWKeyA: -45,
-				KeyWKeyAKeyD: 0,
-				KeyA: -90,
-				KeyAKeyS: -135,
-				KeyWKeyAKeyS: -90,
-				KeyS: -180,
-				KeySKeyD: 135,
-				KeyAKeySKeyD: -180,
-				KeyD: 90,
-				KeyWKeyD: 45,
-				KeyWKeySKeyD: 90,
-			},
-			angle: [0, 0, 0],	// 偏航角, 俯仰角, 速度倍率(0~1)
-			stepSize: 13,	// 移动步长
-		},
 		queue: {	// 队列
 			move: [],	// 移动的实体的id
 			attack: false,	// 玩家攻击
@@ -73,14 +45,6 @@ new Promise(function(resolve, reject){
 			overlap: [],	// 在自己的攻击范围内的实体 | 当前碰撞的实体
 			// reRenderForWindowSize: false,	// 重新渲染, 根据窗口尺寸
 		},
-		message: {	// 聊天组件
-			enable: false,
-		},
-		// F3: {	// F3 调试界面
-		// 	enable: false,	// 使能
-		// 	update: true,	// 循环更新
-		// 	lastUpdateTime: 0,	// 最后更新时间, 防止更新太快浪费cpu
-		// },
 		npc_func: {
 			pointerAdd: true,
 			text: {

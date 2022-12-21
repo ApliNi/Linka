@@ -265,12 +265,19 @@
 	display: none;
 
 	position: fixed;
-	top: 47px;
+	top: 57px;
 	left: calc(50% - 200px);
 
 	background-color: rgba(0, 0, 0, 0.2);
 	padding: 10px;
 	margin: 10px;
+
+	z-index: 900;
+}
+#key-tab{
+	left: calc(50% - 100px);
+	width: 200px;
+	margin: 0;
 }
 #key-tab > p{
 	margin: 0;

@@ -2,31 +2,33 @@
 
 
 // 网页加载完成
-window.onload = function(){
+window.onload = function (){
 	$e.system.emit('window.onload');
 };
 
 
 // 窗口尺寸变化事件
-window.addEventListener('resize', function(){
+window.addEventListener('resize', function (){
 	$e.system.emit('window.resize');
 });
 
 
 // 按键按下事件
-document.onkeydown = function(event){
-	$e.system.emit('onkeydown', event || window.event);
+document.onkeydown = function (event){
+	$e.system.emit('onkeydown', event);
+	$e.system.emit('onkeydown.'+ event.code, event);
 };
 
 
 // 按键松开事件
-document.onkeyup = function(event){
-	$e.system.emit('onkeyup', event || window.event);
+document.onkeyup = function (event){
+	$e.system.emit('onkeyup', event);
+	$e.system.emit('onkeyup.'+ event.code, event);
 };
 
 
 // 窗口失去焦点
-window.onblur = function(){
+window.onblur = function (){
 	$e.system.emit('window.onblur');
 };
 

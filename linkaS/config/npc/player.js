@@ -23,7 +23,7 @@ db.add([
 					[// 0
 						{
 							type: 'js', // 禁用按键
-							code: `$t.WASD.disable = true;`,
+							code: `$t.plugins.WASD.disable = true;`,
 						},
 						{
 							type: 'animationLib',
@@ -45,7 +45,7 @@ db.add([
 						{type: 'text', text: '总之玩得开心🙏'},
 						{
 							type: 'js', // 恢复按键
-							code: `$t.WASD.disable = false;`,
+							code: `$t.plugins.WASD.disable = false;`,
 						},
 						{
 							type: 'animationLib',

@@ -11,11 +11,14 @@
 
 		{"url": "cake/plugins/reg_login.js", "type": "js", "info": "注册登录"},
 		{"url": "cake/plugins/player.js", "type": "js", "info": "玩家相关事件"},
-		{"url": "cake/plugins/onkey.js", "type": "js", "info": "键盘事件"},
 		{"url": "cake/plugins/message.js", "type": "js", "info": "消息处理"},
 		{"url": "cake/plugins/server.js", "type": "js", "info": "服务器相关"},
 		{"url": "cake/plugins/window.js", "type": "js", "info": "窗口相关"},
-		{"url": "cake/plugins/F3.js", "type": "js", "info": "调试信息显示器"},
+
+
+		{"url": "cake/plugins/onkey/F3.js", "type": "js", "info": "调试信息显示器"},
+		{"url": "cake/plugins/onkey/Tab_player_list.js", "type": "js", "info": "玩家列表显示"},
+		{"url": "cake/plugins/onkey/WASD+.js", "type": "js", "info": "PC端键盘操作"},
 
 
 		{"url": "cake/plugins/loop/lib/player_basic.js", "type": "js", "info": "玩家基础事件, 准备重写"},

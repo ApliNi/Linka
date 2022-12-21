@@ -74,10 +74,12 @@ function run($comm, $player, $power){
 			db.up($aim);
 			net_send_place($aim);
 			return [true, '将 '+ _name($aim) +' 传送到 '+ JSON.stringify($aim.place)];
-		}else{return [false]}
+		}
+
+		return [false];
 	}
 
-
+	return [false];
 };
 
 

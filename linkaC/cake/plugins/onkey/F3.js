@@ -4,7 +4,7 @@ $t.plugins.F3 = {
 	enable: false,	// 启动
 	suspend: false,	// 暂停功能
 	loop_id: null,
-	loop_func: function (){
+	loop_func: async function (){
 		// 是否暂停
 		if($t.plugins.F3.suspend === false){
 			// 渲染调试信息
@@ -49,6 +49,7 @@ $t.plugins.F3 = {
 $e.system.on('onkeyup.F3', () => {
 	$t.plugins.F3.enable = !$t.plugins.F3.enable;
 	if($t.plugins.F3.enable === true){
+		$t.plugins.F3.loop_func();
 		// 样式
 		lib.geb('F3').style.display = 'block';
 		lib.geb('all-player').classList.add('-debug');

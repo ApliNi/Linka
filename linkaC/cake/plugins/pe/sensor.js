@@ -56,7 +56,7 @@ function _sensor($mode, $this){
 		}else{
 			$c.plugins.sensor.enable = false;
 			$c.plugins.sensor.gyro.reset_ok = false;
-			$t.WASD.enable = false;
+			$t.plugins.WASD.enable = false;
 		}
 	});
 };
@@ -105,20 +105,20 @@ function _sensorFunc($mode, e){
 		// 如果任意一个角度偏转大于抖动范围
 		if(Math.abs($e[1]) > 3 || Math.abs($e[2]) > 2){
 			// 注册移动计算
-			$t.WASD.enable = true;
+			$t.plugins.WASD.enable = true;
 			// 通过触摸坐标和圆心计算角度
 			let $a = 180 / Math.PI * Math.atan2($e[1], ($e[2]));
 			//console.log($a);
 			// 应用偏航角
-			$t.WASD.angle[0] = $a;
+			$t.plugins.WASD.angle[0] = $a;
 
 			// 通过摆动幅度计算速度倍率 // 设置边界, 转换为0~1
 			$a = Math.min(Math.max(Math.abs($e[1]) - 3, Math.abs($e[2]) - 2), 10) / 10;
 			// 应用速度倍率
-			$t.WASD.angle[2] = $a;
+			$t.plugins.WASD.angle[2] = $a;
 		}else{
 			// 注销移动计算
-			$t.WASD.enable = false;
+			$t.plugins.WASD.enable = false;
 		}
 	}else
 

@@ -1,6 +1,7 @@
 
 // 处理服务器同步数据
 $e.player.on('syncServerData', ($tp) => {
+	let $funcStartTime = performance.now();
 	$c.entity = $tp.data.entity;
 	$c.index_entity.type = [];
 
@@ -58,6 +59,8 @@ $e.player.on('syncServerData', ($tp) => {
 
 	// tpsbar, 页面加载完成的动画
 	lib.geb('tpsbar').style.setProperty('--tpsbar_max_width', '100%');
+
+	console.log('[服务器同步数据] 处理完成, 耗时 '+ (performance.now() - $funcStartTime) + 'ms');
 });
 
 

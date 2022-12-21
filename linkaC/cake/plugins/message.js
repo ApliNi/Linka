@@ -1,4 +1,23 @@
 
+// 初始化
+$t.plugins.message = {
+	enable: false,
+	// 打开 or 收起
+	func: async function ($open){
+		if($open === true){
+			$t.plugins.message.enable = true;
+			lib.geb('message').classList.add('-open');
+			lib.geb('message-input').focus();
+			// 滚动到底部
+			lib.geb('message-list').scrollTop = lib.geb('message-list').scrollHeight;
+		}else{
+			$t.plugins.message.enable = false;
+			lib.geb('message').classList.remove('-open');
+		}
+	},
+};
+
+
 // 渲染一条消息
 $e.player.on('message', ($tp) => {
 	if($tp.type_message === 'player'){ // 玩家发送消息
@@ -28,6 +47,26 @@ lib.geb('message-input').addEventListener('keypress', async (event) => {
 			$dom.value = '';
 		}
 		// 关闭输入框
-		$e.system.emit('onkeyup', {code: 'Escape'});
+		$t.plugins.message.func(false);
 	}
 });
+
+
+// 聊天组件打开
+$e.system.on('onkeyup.KeyT', async () => {
+	if($t.plugins.message.enable === false){
+		$t.plugins.message.func(true);
+	}
+});
+$e.system.on('onkeyup.Backspace', async () => {
+	if($t.plugins.message.enable === false){
+		$t.plugins.message.func(true);
+	}
+});
+// 收起
+$e.system.on('onkeyup.Escape', async () => {
+	if($t.plugins.message.enable === true){
+		$t.plugins.message.func(false);
+	}
+});
+

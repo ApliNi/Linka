@@ -26,11 +26,11 @@ if((lib.isPE() === true || lib.fromUrl('lib.isPE') === 'true') && lib.fromUrl('l
 	});
 
 	// 禁用键盘, 改为摇杆
-	$t.WASD.isKeyboard = false;
+	$t.plugins.WASD.isKeyboard = false;
 
 	// 加载其他代码
-	mainLib.loadCode('cake/plugins/pe/pe.css?v=0.1.2');
-	mainLib.loadCode('cake/plugins/pe/sensor.js?v=0.1.2');
+	mainLib.loadCode({url: 'cake/plugins/pe/pe.css?v=0.1.2', type: 'css', info: '移动端操作键的css'});
+	mainLib.loadCode({url: 'cake/plugins/pe/sensor.js?v=0.1.2', type: 'js', info: '移动端传感器支持'});
 
 	// 创建按键dom
 	lib.geb('_plugins').innerHTML += `
@@ -92,7 +92,7 @@ if((lib.isPE() === true || lib.fromUrl('lib.isPE') === 'true') && lib.fromUrl('l
 		let $a = 180 / Math.PI * Math.atan2($xy[0] - $o[0], ($xy[1] - $o[1]));
 		//console.log($xy, $o, $a);
 		// 应用偏航角
-		$t.WASD.angle[0] = $a;
+		$t.plugins.WASD.angle[0] = $a;
 
 		// 计算按下坐标到摇杆中心的直线距离
 		$a = Math.sqrt(Math.pow(Math.abs($xy[0]- $o[0]), 2) + Math.pow(Math.abs($xy[1]- $o[1]), 2));
@@ -100,7 +100,7 @@ if((lib.isPE() === true || lib.fromUrl('lib.isPE') === 'true') && lib.fromUrl('l
 		$a = Math.min($a, 64) / 64;
 		// console.log($a);
 		// 应用速度倍率
-		$t.WASD.angle[2] = $a;
+		$t.plugins.WASD.angle[2] = $a;
 	};
 
 	// 按键事件
@@ -108,7 +108,7 @@ if((lib.isPE() === true || lib.fromUrl('lib.isPE') === 'true') && lib.fromUrl('l
 		//console.log('按下', e);
 		_on(e);
 		// 注册移动计算
-		$t.WASD.enable = true;
+		$t.plugins.WASD.enable = true;
 	};
 	lib.geb('plugins_WASD_box').ontouchmove = function(e){
 		// console.log('移动', e);
@@ -117,7 +117,7 @@ if((lib.isPE() === true || lib.fromUrl('lib.isPE') === 'true') && lib.fromUrl('l
 	lib.geb('plugins_WASD_box').ontouchend = function(e){
 		//console.log('松开', e);
 		// 注销移动计算
-		$t.WASD.enable = false;
+		$t.plugins.WASD.enable = false;
 	};
 
 	// 其他按键

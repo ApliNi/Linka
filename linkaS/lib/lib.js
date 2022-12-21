@@ -121,17 +121,18 @@ function to_queue_net($entity_id, $name, $data){
 function getSyncDataAll(){
 	let $arr = {
 		entity: {},
-		index_entity: {
-			type: {
-				player: [],
-				mob: [],
-			}
-		},
+		// index_entity: {
+		// 	type: {
+		// 		player: [],
+		// 		mob: [],
+		// 	}
+		// },
 	};
 	// 遍历服务器的实体
 	db.get({}, true).forEach((e) => {
 		if(e.type === 'player'){ // 玩家
 			$arr.entity[e.id] = {
+				// 基础数据
 				type: e.type,
 				id: e.id,
 				name: e?.name || '',
@@ -141,8 +142,18 @@ function getSyncDataAll(){
 		if(e.type === 'npc'){ // npc
 			$arr.entity[e.id] = e;
 		}
-		if(e.type === 'npc2'){ // npc
-			$arr.entity[e.id] = e;
+		if(e.type === 'npc2'){ // npc-v2
+			$arr.entity[e.id] = {
+				// 基础数据
+				id: e.id,
+				type: e.type,
+				name: e?.name || '',
+				place: e.place,
+
+				// NPC程序
+				p_client: e?.p_client,
+				p_event: e?.p_event,
+			};
 		}
 	});
 

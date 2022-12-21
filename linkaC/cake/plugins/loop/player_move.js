@@ -2,22 +2,22 @@
 // 玩家移动
 $e.ui.on('ui.loopStart', ($loopStartTime) => {
 	// 移动是否被禁用
-	if($t.WASD.disable !== true){
+	if($t.plugins.WASD.disable !== true){
 		// 玩家是否移动
-		if($t.WASD.enable === true){
+		if($t.plugins.WASD.enable === true){
 			let $place = [0, 0, 0, 0, 0];
 			// 如果是键盘就将其转换为角度
-			if($t.WASD.isKeyboard === true){
+			if($t.plugins.WASD.isKeyboard === true){
 				// 遍历按下的键, 获取固定角度名
 				let $keyName = '';
-				for(let key in $t.WASD.keyboard){
-					if($t.WASD.keyboard[key] === true){
+				for(let key in $t.plugins.WASD.keyboard){
+					if($t.plugins.WASD.keyboard[key] === true){
 						$keyName += key;
 					}
 				}
 
 				// 角度
-				let $a = $t.WASD.keyAngle[$keyName];
+				let $a = $t.plugins.WASD.keyAngle[$keyName];
 
 				// 判断是否按下不支持的键, 比如 AD, WASD
 				if($a === undefined){
@@ -27,15 +27,15 @@ $e.ui.on('ui.loopStart', ($loopStartTime) => {
 				$place[3] = $a;
 
 				// 移动时速度倍率递增, 直到1. 反之递减
-				if($t.WASD.angle[2] !== 1){
-					$t.WASD.angle[2] = Math.min(Math.max($t.WASD.angle[2] + 0.2, 0.5), 1);
+				if($t.plugins.WASD.angle[2] !== 1){
+					$t.plugins.WASD.angle[2] = Math.min(Math.max($t.plugins.WASD.angle[2] + 0.2, 0.5), 1);
 				}
 			}else{
-				$place[3] = $t.WASD.angle[0];
+				$place[3] = $t.plugins.WASD.angle[0];
 			}
 
 			// 根据速度倍率计算步长
-			let $stepSize = $t.WASD.angle[2] * $t.WASD.stepSize;
+			let $stepSize = $t.plugins.WASD.angle[2] * $t.plugins.WASD.stepSize;
 
 			// 已知偏航角和圆的半径, 计算圆上点的坐标
 			$place[0] = Math.round(Math.sin($place[3] * Math.PI / 180) * $stepSize);
@@ -66,10 +66,10 @@ $e.ui.on('ui.loopStart', ($loopStartTime) => {
 			$c.time.player_move_start = $loopStartTime;
 
 			// 使用键盘控制
-			if($t.WASD.isKeyboard === true){
+			if($t.plugins.WASD.isKeyboard === true){
 				// 反之递减, 移动时速度倍率递增, 直到1.
-				if($t.WASD.angle[2] !== 0){
-					$t.WASD.angle[2] = Math.max($t.WASD.angle[2] - 0.1, 0);
+				if($t.plugins.WASD.angle[2] !== 0){
+					$t.plugins.WASD.angle[2] = Math.max($t.plugins.WASD.angle[2] - 0.1, 0);
 				}
 			}
 		}

@@ -18,7 +18,7 @@ npc_v2 = {
 };
 
 
-// 实体创建事件
+// type=npc2 实体创建事件
 $e.system.on('syncServerData.entity_join..type=npc2', ($npc) => {
 	console.log('[NPC-v2] 预处理NPC: '+ $npc.id);
 

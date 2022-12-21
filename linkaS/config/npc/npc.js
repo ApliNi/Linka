@@ -49,7 +49,7 @@ db.add([
 					[ // 0
 						{
 							type: 'js', // 禁用按键
-							code: `$t.WASD.disable = true;`,
+							code: `$t.plugins.WASD.disable = true;`,
 						},
 						{
 							type: 'animationLib',
@@ -72,7 +72,7 @@ db.add([
 						},
 						{
 							type: 'js', // 恢复按键
-							code: `$t.WASD.disable = false;`,
+							code: `$t.plugins.WASD.disable = false;`,
 						},
 					],
 				]
@@ -138,7 +138,7 @@ db.add([
 					[
 						{
 							type: 'js', // 禁用按键
-							code: `$t.WASD.disable = true;`,
+							code: `$t.plugins.WASD.disable = true;`,
 						},
 						{
 							type: 'animationLib',
@@ -165,7 +165,7 @@ db.add([
 						{type: 'text', sudo_trigger_x: false, sudo_npc_id: 'npc7'},
 						{
 							type: 'js', // 恢复按键
-							code: `$t.WASD.disable = false;`,
+							code: `$t.plugins.WASD.disable = false;`,
 						},
 						{
 							type: 'animationLib',
@@ -204,7 +204,7 @@ db.add([
 					[
 						{
 							type: 'js', // 禁用按键
-							code: `$t.WASD.disable = true;`,
+							code: `$t.plugins.WASD.disable = true;`,
 						},
 						{
 							type: 'animationLib',
@@ -222,7 +222,7 @@ db.add([
 					[
 						{
 							type: 'js', // 恢复按键
-							code: `$t.WASD.disable = false;`,
+							code: `$t.plugins.WASD.disable = false;`,
 						},
 						{
 							type: 'animationLib',
@@ -279,7 +279,7 @@ db.add([
 					[
 						{
 							type: 'js', // 禁用按键
-							code: `$t.WASD.disable = true;`,
+							code: `$t.plugins.WASD.disable = true;`,
 						},
 						{
 							type: 'animationLib',
@@ -320,7 +320,7 @@ db.add([
 								{
 									type: 'js', // 修改移动速度, 更新商品计数器
 									code: `
-										$t.WASD.stepSize = 32;
+										$t.plugins.WASD.stepSize = 32;
 										$data.npc.npc9 = true;
 									`,
 								},
@@ -333,7 +333,7 @@ db.add([
 							program: [
 								{
 									type: 'js', // 恢复移动速度
-									code: `$t.WASD.stepSize = 13`,
+									code: `$t.plugins.WASD.stepSize = 13`,
 								},
 								{type: 'text', text: '欢迎下次光临~'},
 							],
@@ -347,7 +347,7 @@ db.add([
 						},
 						{
 							type: 'js', // 恢复按键
-							code: `$t.WASD.disable = false;`,
+							code: `$t.plugins.WASD.disable = false;`,
 						},
 						{
 							type: 'animationLib',
