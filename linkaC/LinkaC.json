@@ -1,12 +1,10 @@
 {
 	"plugins": [
+		{"url": "cake/worker/worker.js", "type": "js", "info": "worker以及通讯模块"},
+		{"url": "cake/loop.js", "type": "js", "info": "循环模块"},
+
 		{"url": "cake/lib/info.css", "type": "css", "info": "信息/消息显示相关css"},
 		{"url": "cake/lib/animationLib.css", "type": "css", "info": "动效库"},
-
-
-		{"url": "cake/plugins/lib/npc.js", "type": "js", "info": "NPC插件"},
-		{"url": "cake/plugins/lib/npc_v2.js", "type": "js", "info": "新的NPC插件, 与旧版本兼容"},
-		{"url": "cake/plugins/pe/pe.js", "type": "js", "info": "提供移动端支持"},
 
 
 		{"url": "cake/plugins/reg_login.js", "type": "js", "info": "注册登录"},
@@ -19,6 +17,11 @@
 		{"url": "cake/plugins/onkey/F3.js", "type": "js", "info": "调试信息显示器"},
 		{"url": "cake/plugins/onkey/Tab_player_list.js", "type": "js", "info": "玩家列表显示"},
 		{"url": "cake/plugins/onkey/WASD+.js", "type": "js", "info": "PC端键盘操作"},
+
+
+		{"url": "cake/plugins/lib/npc.js", "type": "js", "info": "NPC插件"},
+		{"url": "cake/plugins/lib/npc_v2.js", "type": "js", "info": "新的NPC插件, 与旧版本兼容"},
+		{"url": "cake/plugins/pe/pe.js", "type": "js", "info": "提供移动端支持"},
 
 
 		{"url": "cake/plugins/loop/lib/player_basic.js", "type": "js", "info": "玩家基础事件, 准备重写"},

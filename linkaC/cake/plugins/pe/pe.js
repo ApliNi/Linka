@@ -2,16 +2,27 @@
 // 移动端操作支持
 // js判断 和 url配置
 if((lib.isPE() === true || lib.fromUrl('lib.isPE') === 'true') && lib.fromUrl('lib.isPE') !== 'false'){
-	// 阻止双击放大
-	document.addEventListener('touchstart', function(e){
-		if(e.touches.length > 1) e.preventDefault();
+	//阻止safari浏览器双击放大功能
+	let lastTouchEnd = 0  //更新手指弹起的时间
+	document.documentElement.addEventListener('touchstart', function (event){
+		//多根手指同时按下屏幕，禁止默认行为
+		if(event.touches.length > 1){
+			event.preventDefault();
+		}
 	});
-	let lastTouchEnd = 0;
-	document.addEventListener('touchend', function(e){
+	document.documentElement.addEventListener('touchend', function (event){
 		let now = (new Date()).getTime();
-		if(now - lastTouchEnd <= 300) e.preventDefault();
-		lastTouchEnd = now;
+		if(now - lastTouchEnd <= 300){
+			//当两次手指弹起的时间小于300毫秒，认为双击屏幕行为
+			event.preventDefault();
+		}else{ // 否则重新手指弹起的时间
+			lastTouchEnd = now;
+		}
 	}, false);
+	//阻止双指放大页面
+	document.documentElement.addEventListener('gesturestart', function (event){
+		event.preventDefault();
+	});
 	// 禁止页面滚动, 什么垃圾SAFARI
 	// scrollTo(0, 0); // 防止页面在每次刷新中自动跑偏
 	// document.addEventListener('touchmove', function(e){
@@ -124,20 +135,17 @@ if((lib.isPE() === true || lib.fromUrl('lib.isPE') === 'true') && lib.fromUrl('l
 	lib.geb('plugins_key_box').ontouchstart = function(e){
 		let $date = e.composedPath()[0].dataset;
 		if($date?.code){
-			$e.system.emit('onkeydown', {code: $date.code});
-			// _document_onkeydown({code: $date.code});
+			$e.system.emit('onkeydown.'+ $date.code);
 		}else
 
 		if($date?.onfunc){
-			// console.log($date.onfunc);
 			new Function($date.onfunc)();
 		}
 	};
 	lib.geb('plugins_key_box').ontouchend = function(e){
 		let $date = e.composedPath()[0].dataset;
 		if($date?.code){
-			$e.system.emit('onkeyup', {code: $date.code});
-			// _document_onkeyup({code: $date.code});
+			$e.system.emit('onkeyup.'+ $date.code);
 		}else
 
 		if($date?.offfunc){

@@ -2,6 +2,9 @@
 // 处理服务器同步数据
 $e.player.on('syncServerData', ($tp) => {
 	let $funcStartTime = performance.now();
+
+	console.log('[服务器同步数据] 开始处理服务器同步数据...');
+
 	$c.entity = $tp.data.entity;
 	$c.index_entity.type = [];
 

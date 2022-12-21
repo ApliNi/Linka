@@ -15,15 +15,23 @@ window.addEventListener('resize', function (){
 
 // 按键按下事件
 document.onkeydown = function (event){
-	$e.system.emit('onkeydown', event);
-	$e.system.emit('onkeydown.'+ event.code, event);
+	let $eData = {
+		prohibit: [],
+	};
+	$e.system.emit('onkeydown', event, $eData);
+	$e.system.emit('onkeydown.'+ event.code, event, $eData);
+	$eData = undefined;
 };
 
 
 // 按键松开事件
 document.onkeyup = function (event){
-	$e.system.emit('onkeyup', event);
-	$e.system.emit('onkeyup.'+ event.code, event);
+	let $eData = {
+		prohibit: [],
+	};
+	$e.system.emit('onkeyup', event, $eData);
+	$e.system.emit('onkeyup.'+ event.code, event, $eData);
+	$eData = undefined;
 };
 
 

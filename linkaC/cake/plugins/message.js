@@ -33,25 +33,29 @@ $e.player.on('message', ($tp) => {
 });
 
 
-// 监听输入框回车
-lib.geb('message-input').addEventListener('keypress', async (event) => {
-	if(event.code === 'Enter'){
-		let $dom = lib.geb('message-input');
-		// 如果消息为空则不发送
-		if($dom.value.replaceAll(' ', '').replaceAll('　', '') !== ''){
-			lib.netQueue('sendMessage'+ performance.now(), {
-				type: 'sendMessage',
-				message: $dom.value,
-			})
-			// 清空输入框
-			$dom.value = '';
-		}
-		// 关闭输入框
-		$t.plugins.message.func(false);
+// 发送消息
+$e.ui.on('message.send_key', async () => {
+	let $dom = lib.geb('message-input');
+	// 如果消息为空则不发送
+	if($dom.value.replaceAll(' ', '').replaceAll('　', '') !== ''){
+		lib.netQueue('sendMessage'+ performance.now(), {
+			type: 'sendMessage',
+			message: $dom.value,
+		})
+		// 清空输入框
+		$dom.value = '';
 	}
+	// 关闭输入框
+	$t.plugins.message.func(false);
 });
 
 
+// 监听输入框回车
+lib.geb('message-input').addEventListener('keypress', async (event) => {
+	if(event.code === 'Enter'){
+		$e.ui.emit('message.send_key');
+	}
+});
 // 聊天组件打开
 $e.system.on('onkeyup.KeyT', async () => {
 	if($t.plugins.message.enable === false){

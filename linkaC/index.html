@@ -24,9 +24,6 @@
 	<script type="text/javascript" src="cake/event.js?v=0.1.2"></script>
 	<!-- 主程序 -->
 	<script type="text/javascript" src="cake/main.js?v=0.1.2"></script>
-	<script type="text/javascript" src="cake/loop.js?v=0.1.2"></script>
-	<!-- worker模块 -->
-	<script type="text/javascript" src="cake/worker/worker.js?v=0.1.2"></script>
 	<!-- 流 -->
 	<script type="text/javascript" src="cake/flow/ui.js?v=0.1.2"></script>
 
@@ -106,6 +103,8 @@
 
 				<br />
 				<p>v0.3更新日志: </p>
+				<p> - c整理代码, 优化按键部分</p>
+				<p> - a-NPC-v2 实现扩展性更高的NPC .ing</p>
 				<p> - s添加描述文件, 优化循环部分</p>
 				<p> - c更新插件加载器, 以及配置文件格式</p>
 				<p> - c优化循环部分, 整理代码</p>
@@ -239,7 +238,7 @@
 
 			<!-- 输入框背景div, 发送按钮, 输入框 -->
 			<div class="message_input_bc">
-				<button class="btn" onclick="main_send({type: 'sendMessage'}); _document_onkeyup({code: 'Escape'});">发送</button>
+				<button class="btn" onclick="$e.ui.emit('message.send_key');">发送</button>
 			</div>
 			<input id="message-input" maxlength="2048" />
 		</div>
@@ -252,9 +251,7 @@
 		<div id="_window"></div>
 
 		<!-- 插件dom默认位置 -->
-		<div id="_plugins" class="plugins">
-
-		</div>
+		<div id="_plugins" class="plugins"></div>
 	</div>
 </body>
 </html>
