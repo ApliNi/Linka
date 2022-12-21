@@ -40,7 +40,11 @@ $e.loop.on('ergodic_player', ($funcStartTime, $player) => {
 		// 判断玩家是否存在
 		if(db.get({id: e}) !== undefined){
 			// 发送数据
-			db.get({id: e}).ws.send(JSON.stringify({
+			// db.get({id: e}).ws.send(JSON.stringify({
+			// 	time: $funcStartTime,
+			// 	data: $arr,
+			// }));
+			db.get({id: e}).ws.send(lib.JSON_stringify_retainFunc({
 				time: $funcStartTime,
 				data: $arr,
 			}));

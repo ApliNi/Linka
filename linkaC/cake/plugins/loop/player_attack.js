@@ -10,7 +10,9 @@ $e.system.on('tps.loopStart', () => {
 			$e.ui.emit('attack', {
 				id: e,
 				trigger_y: ['attack'],
-			})
+			});
+			// 新版事件 !!
+			$e.ui.emit('2attack', e);
 		});
 	}
 });

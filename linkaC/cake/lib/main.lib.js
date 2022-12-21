@@ -3,7 +3,7 @@ mainLib = {};
 
 
 // ajax
-mainLib.ajax = function ($url, back, $_errNum = 0){
+mainLib.ajax = async function ($url, back, $_errNum = 0){
 	// 如果失败次数过多
 	if($_errNum >= 4){
 		if(back) back(false, undefined);
@@ -35,7 +35,7 @@ mainLib.ajax = function ($url, back, $_errNum = 0){
 
 
 // 加载程序文件
-mainLib.loadCode = function ($tp, back){
+mainLib.loadCode = async function ($tp, back){
 	// 始终加载新版本
 	if($config.forceUpdate === true){
 		$tp.url += '?&time='+ Date.now();
@@ -85,7 +85,7 @@ mainLib.loadCode = function ($tp, back){
 
 
 // 启动器
-mainLib.starter = function ($url, back){
+mainLib.starter = async function ($url, back){
 	// 下载配置文件
 	mainLib.ajax($url, ($s, $tp) => {
 		if($s === true){

@@ -68,7 +68,9 @@ $e.system.on('tps.loopStart', () => {
 			// 事件
 			$e.ui.emit('overlap', {id: e,
 				trigger_y: ['overlap', true],
-			})
+			});
+			// 新版事件 !!
+			$e.ui.emit('2overlap.true', e);
 		});
 		lib.geb($c.player.id).classList.add('--overlap');
 	}
@@ -81,7 +83,9 @@ $e.system.on('tps.loopStart', () => {
 			// 事件
 			$e.ui.emit('overlap', {id: e,
 				trigger_y: ['overlap', false],
-			})
+			});
+			// 新版事件 !!
+			$e.ui.emit('2overlap.false', e);
 		});
 		if($t.queue.overlap.length === 0) lib.geb($c.player.id).classList.remove('--overlap');
 	}

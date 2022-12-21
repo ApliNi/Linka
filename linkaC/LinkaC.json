@@ -5,6 +5,7 @@
 
 
 		{"url": "cake/plugins/lib/npc.js", "type": "js", "info": "NPC插件"},
+		{"url": "cake/plugins/lib/npc_v2.js", "type": "js", "info": "新的NPC插件, 与旧版本兼容"},
 		{"url": "cake/plugins/pe/pe.js", "type": "js", "info": "提供移动端支持"},
 
 

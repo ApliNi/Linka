@@ -49,28 +49,6 @@ function net_loop(){
 };
 
 
-// function cc_自动移动(){
-// 	let $p = [0, 0, 0, 0, 0];
-// 	let $i = true;
-// 	// 定时取反
-// 	setInterval(function(){
-// 		$i = !$i;
-// 	}, 1000);
-// 	// 创建数据
-// 	setInterval(function(){
-// 		if($i){
-// 			$p[0] += 20;
-// 		}else{
-// 			$p[0] -= 20;
-// 		}
-
-// 		$c.queue_net['WASD'] = {
-// 			type: "playerMove",
-// 			place: $p,
-// 		}
-// 	}, 62);
-// };
-
 // 启动ws
 function start_ws(){
 	$ws = new WebSocket('wss://ipacel.cc/websocket/');
@@ -85,6 +63,8 @@ function start_ws(){
 	// 收到消息
 	$ws.onmessage = function(e){
 		let $tp = JSON.parse(e.data);
+		// let $tp = JSON_parse_retainFunc(e.data);
+		// console.log($tp);
 		// postMessage({type: 'ws.onmessage', data: JSON.parse(e.data)});
 		// 更新最后收到消息的时间
 		$c.net.last_receive = performance.now();

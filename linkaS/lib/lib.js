@@ -141,7 +141,11 @@ function getSyncDataAll(){
 		if(e.type === 'npc'){ // npc
 			$arr.entity[e.id] = e;
 		}
+		if(e.type === 'npc2'){ // npc
+			$arr.entity[e.id] = e;
+		}
 	});
+
 
 	// 添加旧消息
 	$arr.message = $t.message;
@@ -204,6 +208,19 @@ function getIP(req){
 };
 
 
+// 转换为json字符串, 但保留json对象中不可正常转换的对象
+// 如果是函数就转换为['标识', '函数字符串']
+function JSON_stringify_retainFunc($json){
+	return JSON.stringify($json, (key, value) => {
+		// 函数
+		if(typeof value === 'function'){
+			return ['LINKA_FUNC', value.toString()];
+		}
+		return value;
+	});
+};
+
+
 module.exports = {
 	uuid,
 	toJSON,
@@ -217,6 +234,7 @@ module.exports = {
 	enter_playerOK,
 	is,
 	getIP,
+	JSON_stringify_retainFunc,
 };
 
 

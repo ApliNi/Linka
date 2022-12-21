@@ -8,6 +8,12 @@ $e.player.on('syncServerData', ($tp) => {
 	lib.geb('all-player').innerHTML = '';
 	// 遍历实体列表
 	for(let key in $c.entity){
+
+		// 触发实体创建事件
+		$e.system.emit('syncServerData.entity_join', $c.entity[key]);
+		// 根据type分类
+		$e.system.emit('syncServerData.entity_join..type='+ $c.entity[key].type, $c.entity[key]);
+
 		// 创建实体索引
 		if($c.index_entity.type[$c.entity[key].type] === undefined){ // 如果实体索引中不存在当前type
 			$c.index_entity.type[$c.entity[key].type] = [];

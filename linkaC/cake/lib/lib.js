@@ -38,6 +38,7 @@ lib.render_tpsbar = async function ($mspt, $ping){
 
 // 渲染实体
 lib.render_entity = async function ($tp){
+
 	// 创建实体主dom
 	let $dom = document.createElement('div');
 		$dom.setAttribute('id', $tp.id);
@@ -307,5 +308,16 @@ lib.desktopNotification = async function ($title, $message, $clear = true){
 			if($clear) setTimeout(function(){$id.close()}, 10000);
 		}
 	});
+};
+
+
+// 将不可正常转换为json字符串的对象字符串转换为对象
+// 如果是函数就转换为['标识', '函数字符串']
+lib.toFunction = function ($arr){
+	// 函数
+	if($arr[0] === 'LINKA_FUNC'){
+		return new Function('return '+ $arr[1])();
+	}
+	return null;
 };
 
