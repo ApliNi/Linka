@@ -4,8 +4,6 @@ db.add([
 		id: 'npc3',
 		type: 'npc',
 		name: 'ApliNi',
-		place_x: 465,
-		place_y: -450,
 		place: [465, -450, 0 , 52, 0],
 		program: [
 			{
@@ -115,8 +113,6 @@ db.add([
 		id: 'npc4',
 		type: 'npc',
 		name: 'villager',
-		place_x: 640,
-		place_y: -450,
 		place: [640, -450, 0 , 294, 0],
 		program: [
 			{

@@ -60,6 +60,7 @@ function initial_var(){
 		// 服务器内部事件
 		server: new EventEmitter(),
 		net: new EventEmitter(),
+		loop: new EventEmitter(),
 
 		// 客户端可触发的事件
 		// mod: new EventEmitter(),
@@ -120,6 +121,7 @@ function initial_config(){
 	const fs = require('fs');
 	const path = require('path');
 
+	// 返回文件路径
 	function travel(dir, back){
 		fs.readdirSync(dir).forEach((file) => {
 			let pathname = path.join(dir, file);
@@ -131,16 +133,26 @@ function initial_config(){
 		});
 	};
 
-	// 遍历配置目录
-	travel('./config', (path) => {
-		// 判断文件格式
-		let $form = path.substring(path.lastIndexOf('.') + 1, path.length);
-		if($form === 'js'){
-			log.out('INFO', '[初始化] [模块] [JS] 正在运行: '+ path);
-			$e.server.emit(path +'_start');
-			require($config.rootPath +'/'+ path); // 运行js脚本
-			$e.server.emit(path +'_end');
-		}
+	// 遍历配置目录中的所有文件
+	function ergodicPath($path){
+		travel($path, (path) => {
+			// 判断文件格式
+			let $form = path.substring(path.lastIndexOf('.') + 1, path.length);
+			if($form === 'js'){
+				log.out('INFO', '[初始化] [模块] [JS] 正在运行: '+ path);
+				$e.server.emit(path +'_start');
+				require($config.rootPath +'/'+ path); // 运行js脚本
+				$e.server.emit(path +'_end');
+			}
+		});
+	}
+
+	// 遍历目录数组
+	[
+		'./plugins',
+		'./config',
+	].forEach((e) => {
+		ergodicPath(e);
 	});
 };
 

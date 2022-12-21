@@ -4,8 +4,11 @@ const db = require('./db.js');
 
 // 生成唯一id
 function uuid($m = ''){
+	// 根据时间戳生成唯一的随机字符串
 	let $i = (Date.now().toString(36) + Math.random().toString(36).substring(2)).substring(0, 17).padStart(17, '0');
+	// 直接输出
 	if($m === ''){return $i;}
+	// 打乱字符串, 作为通讯密钥使用
 	if($m === 'key'){return $i.split('').sort(() => {return Math.random() > 0.7 ? 1 : -1}).join('');}
 };
 
