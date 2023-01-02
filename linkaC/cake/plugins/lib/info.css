@@ -1,0 +1,12 @@
+#_info_actionBar{
+	pointer-events: none;
+	position: fixed;
+	bottom: 72px;
+	width: 100%;
+	text-align: center;
+
+	opacity: 0;
+}
+#_info_actionBar.-open{
+	opacity: 1;
+}

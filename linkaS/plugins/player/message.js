@@ -1,9 +1,9 @@
 // 注册事件监听
 db.add({type: 'player', name: 'sendMessage'}, $c.Event);
-const comm = require($config.rootPath +'/lib/comm.js');
+const comm = require($config.rootPath +'/lib/command.js');
 
 
-$e.player.on('sendMessage', ($eData, $tp, $player) => {
+$e.player.on('sendMessage', async ($eData, $tp, $player) => {
 	if($eData.prohibit.indexOf('server_sendMessage') !== -1) return false;
 
 	// 数据检查

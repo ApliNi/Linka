@@ -1,6 +1,6 @@
 // 日志库, 用于格式化日志后输出
 
-function out($type, $log){
+async function out($type, $log){
 	// 是否启用日志输出
 	if($config.log_out === false) return;
 

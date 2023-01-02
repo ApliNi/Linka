@@ -12,14 +12,15 @@ $t.plugins.F3 = {
 				<p title="[宽, 高]">视窗尺寸: [${[document.documentElement.clientWidth, document.documentElement.clientHeight]}]</p>
 
 				<br />
-				<p>MSPT: UI:${$c.time.mspt_ui}/${$c.loop._ui_time}, MAIN:${$c.time.mspt_tps}/${$c.loop._tps_time}. SERVER:${$c.time.mspt_server} (ms)</p>
+				<p>MSPT: UI:${$c.time.mspt_ui}/${$c.loop.ui_time}, MAIN:${$c.time.mspt_tps}/${$c.loop.tps_time}. SERVER:${$c.time.mspt_server} (ms)</p>
 				<p>DOM数量: ${document.querySelectorAll('*').length}</p>
-				<p>内存占用: ${Math.round(window.performance.memory.usedJSHeapSize / 1024)}KB / ${Math.round(window.performance.memory.totalJSHeapSize / 1024)}KB (Data: ${Math.round((JSON.stringify($c).length + JSON.stringify($c).length) / 1024)}KB)</p>
+				<p>内存占用: ${Math.round(window.performance.memory.usedJSHeapSize / 1048576)}MB / ${Math.round(window.performance.memory.totalJSHeapSize / 1048576)}MB</p>
+				<p>数据大小: $c: ${Math.round(JSON.stringify($c).length / 1024)}KB, $t: ${Math.round(JSON.stringify($t).length / 1024)}KB (不包括Func等对象)</p>
 				<p>相对时间: ${Math.round(performance.now())}ms</p>
 
 				<br />
 				<p>玩家信息: <span title="[x(+left), y(-top), z(未定义), y(偏航角), p(俯仰角)]">ID:'${$c.player.id}', PLACE:[${$c.entity[$c.player.id].place}]</span></p>
-				<p>玩家碰撞队列: [${$t.queue.overlap}]</p>
+				<p>实体碰撞队列: [${$t.queue.overlap}]</p>
 				<p>实体移动队列: [${$t.queue.move}]</p>
 			`;
 		}
@@ -55,7 +56,7 @@ $e.system.on('onkeyup.F3', () => {
 		lib.geb('all-player').classList.add('-debug');
 		lib.geb('background').classList.add('-debug');
 		// 创建循环
-		$t.plugins.F3.loop_id = setInterval($t.plugins.F3.loop_func, 100);
+		$t.plugins.F3.loop_id = setInterval($t.plugins.F3.loop_func, 115);
 	}else{
 		// 样式
 		lib.geb('F3').style.display = 'none';

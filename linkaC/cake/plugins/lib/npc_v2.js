@@ -2,7 +2,9 @@
 // NPC-v2
 npc_v2 = {
 	// 处理NPC监听的事件
-	p_event: function ($npc, $eventName){
+	// $npc			// NPC数据
+	// $eventName	// 事件名
+	p_event: async function ($npc, $eventName){
 		// 判断这个npc是否有事件监听
 		if($npc?.p_event !== undefined){
 			let $npc_p_event = $npc.p_event;
@@ -10,7 +12,7 @@ npc_v2 = {
 			if($npc_p_event[$eventName] !== undefined){
 				// 将字符串转换为函数
 				let $program = $npc_p_event[$eventName];
-				// 运行程序, 传入npc数据
+				// 运行程序, 传入npc自身的数据
 				$program($npc);
 			}
 		}
@@ -20,7 +22,7 @@ npc_v2 = {
 
 // type=npc2 实体创建事件
 $e.system.on('syncServerData.entity_join..type=npc2', ($npc) => {
-	console.log('[NPC-v2] 预处理NPC: '+ $npc.id);
+	console.groupCollapsed('[NPC-v2] 预处理NPC: '+ $npc.id);
 
 	// 如果有客户端程序
 	if($npc?.p_client !== undefined){
@@ -36,6 +38,8 @@ $e.system.on('syncServerData.entity_join..type=npc2', ($npc) => {
 			$npc.p_event[key] = lib.toFunction($npc.p_event[key]);
 		}
 	}
+
+	console.groupEnd();
 });
 
 // 玩家碰撞

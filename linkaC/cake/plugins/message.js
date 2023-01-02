@@ -41,7 +41,7 @@ $e.ui.on('message.send_key', async () => {
 		lib.netQueue('sendMessage'+ performance.now(), {
 			type: 'sendMessage',
 			message: $dom.value,
-		})
+		});
 		// 清空输入框
 		$dom.value = '';
 	}

@@ -101,7 +101,7 @@ mainLib.starter = async function ($url, back){
 
 	// 加载模块文件
 	function load_code_array(){
-		console.log('[初始化] [模块] 开始加载模块...');
+		console.groupCollapsed('[初始化] [模块] 开始加载模块...');
 		let $num = 0;
 		let $ok_num = 0;
 		let $err = 0;
@@ -117,6 +117,7 @@ mainLib.starter = async function ($url, back){
 					if($s === false) $err ++;
 					// 全部加载完成
 					if($ok_num === $num){
+						console.groupEnd();
 						// 如果有加载失败就返回 false 和数量
 						if(back) back(($err === 0)? true : false, $err);
 					}

@@ -321,3 +321,48 @@ lib.toFunction = function ($arr){
 	return null;
 };
 
+
+// 获取元素宽高, 未完成
+lib.getElementSize = function ($id){
+	let $dom = lib.geb($id).getClientRects()[0];
+};
+
+
+// 从数组中随机选择一项, 待优化
+lib.getArrRandom = function ($arr){
+	return $arr[Math.floor(Math.random() * $arr.length)];
+};
+
+
+// 按顺序获取数组中的每一项. 数组的第0位数字作为指针
+lib.getArrAutoOrder = function ($arr){
+	// 获取数组指针指向的数据
+	let $out = $arr[$arr[0]];
+	$arr[0] ++;
+	// 如果指针超过数组长度
+	if($arr[0] >= $arr.length){
+		$arr[0] = 1;
+	}
+	return $out;
+};
+
+
+// 从数组中获取随机一项, 如果与指针中的重复或等于0, 则重新获取
+// 如果>=7次, 就直接返回指针下一位
+lib.getArrAutoRandom = function ($arr, $__retryNum = 0){
+	let $_retryNum = $__retryNum + 1;
+	// 如果超出重试次数限制
+	if($_retryNum >= 7){
+		return lib.getArrAutoOrder($arr);
+	}
+	// 获取随机数
+	let $num = Math.floor(Math.random() * $arr.length);
+	// 如果重复
+	if($num === $arr[0] || $num === 0){
+		return lib.getArrAutoRandom($arr, $_retryNum);
+	}
+
+	// 获取当前的
+	$arr[0] = $num;
+	return $arr[$num];
+};

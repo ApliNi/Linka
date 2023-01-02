@@ -19,7 +19,7 @@ wss.on('connection', (ws, req) => {
 	$e.net.emit('connection', $ip_port, ws);
 
 	// 收到消息
-	ws.on('message', (m) => {
+	ws.on('message', async (m) => {
 		let $loopStartTime = Date.now();
 		let $tp = lib.toJSON(m);
 
@@ -39,7 +39,7 @@ wss.on('connection', (ws, req) => {
 			let $player = db.get({id: $tp.id});
 
 			// 遍历数据数组
-			$tp.data.forEach((e) => {
+			$tp.data.forEach(async (e) => {
 				// 是否存在这个事件名
 				if(db.getif({type: 'player', name: e.type}, $c.Event)){
 					// 转换为单个数据的格式
@@ -89,13 +89,13 @@ wss.on('connection', (ws, req) => {
 	});
 
 	// 连接断开
-	ws.on('close', (code) => {
+	ws.on('close', async (code) => {
 		log.out('INFO', '[网络] 连接断开 ['+ $ip_port.join(', ') + '] Code='+ code);
 		lib.logoutClient(ws.id); // 跑了
 	});
 
 	// 连接丢失
-	ws.on('disconnect', (code) => {
+	ws.on('disconnect', async (code) => {
 		log.out('INFO', '[网络] 连接丢失 ['+ $ip_port.join(', ') + '] Code='+ code);
 		lib.logoutClient(ws.id, '连接丢失');
 	});

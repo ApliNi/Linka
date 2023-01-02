@@ -2,7 +2,7 @@
 db.add({type: 'player', name: 'playerMove'}, $c.Event);
 
 
-$e.player.on('playerMove', ($eData, $tp, $player) => {
+$e.player.on('playerMove', async ($eData, $tp, $player) => {
 	if($eData.prohibit.indexOf('server_playerMove') !== -1) return false;
 
 	if(lib.enter_playerOK($tp) !== true			// 验证玩家

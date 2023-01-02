@@ -20,7 +20,15 @@
 
 
 		{"url": "cake/plugins/lib/npc.js", "type": "js", "info": "NPC插件"},
-		{"url": "cake/plugins/lib/npc_v2.js", "type": "js", "info": "新的NPC插件, 与旧版本兼容"},
+		{"url": "cake/plugins/lib/lib/npc_v2_lib.js", "type": "js", "info": "新NPC插件的功能库"},
+		{"url": "cake/plugins/lib/npc_v2.js", "type": "js", "info": "新NPC插件, 与旧版本兼容"},
+		{"url": "cake/plugins/lib/info.css", "type": "css", "info": "信息显示组件"},
+		{"url": "cake/plugins/lib/info.js", "type": "js", "info": "信息显示组件"},
+
+
+		{"url": "cake/plugins/npc-v2-plugins/ride.js", "type": "js", "info": "npc骑乘插件"},
+
+
 		{"url": "cake/plugins/pe/pe.js", "type": "js", "info": "提供移动端支持"},
 
 

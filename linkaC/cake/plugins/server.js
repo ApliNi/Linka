@@ -10,6 +10,9 @@ $e.player.on('syncServerData', ($tp) => {
 
 	// 清空现有实体
 	lib.geb('all-player').innerHTML = '';
+
+	console.groupCollapsed('[服务器同步数据] 处理实体数据...');
+
 	// 遍历实体列表
 	for(let key in $c.entity){
 
@@ -38,6 +41,9 @@ $e.player.on('syncServerData', ($tp) => {
 			}
 		}
 	}
+
+	console.groupEnd();
+
 	// 更新背景层
 	lib.update_place_to_background();
 

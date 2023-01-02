@@ -2,7 +2,7 @@
 db.add({type: 'player', name: 'reg'}, $c.Event);
 
 
-$e.player.on('reg', ($eData, $tp, $player) => {
+$e.player.on('reg', async ($eData, $tp, $player) => {
 	if($eData.prohibit.indexOf('server_reg') !== -1) return false;
 
 	// 数据检查

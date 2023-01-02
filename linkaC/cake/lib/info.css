@@ -186,6 +186,7 @@
 	top: 14px;
 	left: calc(50% - 200px);
 	min-width: 400px;
+	z-index: 40;
 }
 #tpsbar:empty{
 	top: -50px;
@@ -194,10 +195,6 @@
 	text-align: center;
 	margin: 0px;
 }
-
-
-
-
 #tpsbar{
 	--tpsbar_tps: 0;
 	--tpsbar_mspt: 0;

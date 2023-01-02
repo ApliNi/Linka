@@ -135,6 +135,7 @@ if((lib.isPE() === true || lib.fromUrl('lib.isPE') === 'true') && lib.fromUrl('l
 	lib.geb('plugins_key_box').ontouchstart = function(e){
 		let $date = e.composedPath()[0].dataset;
 		if($date?.code){
+			$e.system.emit('onkeydown', $date);
 			$e.system.emit('onkeydown.'+ $date.code);
 		}else
 
@@ -145,6 +146,7 @@ if((lib.isPE() === true || lib.fromUrl('lib.isPE') === 'true') && lib.fromUrl('l
 	lib.geb('plugins_key_box').ontouchend = function(e){
 		let $date = e.composedPath()[0].dataset;
 		if($date?.code){
+			$e.system.emit('onkeyup', $date);
 			$e.system.emit('onkeyup.'+ $date.code);
 		}else
 

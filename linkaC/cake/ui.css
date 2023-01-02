@@ -17,6 +17,12 @@ body{
 	-webkit-user-select: none;
 	user-select: none;
 
+	/* 实验性性能提升, 已知对大量dom无效 */
+	transition: width 0s, height 0s;
+	width: 100%;
+	height: 100vh;
+	content-visibility: auto;
+
 	/* 全局变量 */
 	--message_list_max_height: min(70vh, 640px); /* #message.-open > #message-list 的最大高度 */
 }

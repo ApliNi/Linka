@@ -26,7 +26,7 @@ function toJSON($i){
 
 
 // 注销并删除一个客户端
-function logoutClient($id, $message = ''){
+async function logoutClient($id, $message = ''){
 	// 判断这个客户端还在不在
 	if(db.get({id: $id})?.ws){
 		// 注销ws
@@ -73,42 +73,8 @@ function moveRectangleToCoordinate($p1, $p2, $r){ // 当前坐标, 目标坐标,
 };
 
 
-// 在玩家周围n距离外生成随机坐标
-function randomCoordinate_playerOutside($r){
-	// 1. 随机选择一位玩家, 以他的坐标为原点往随机方向偏移n距离
-	// 2. 判断这个位置周围是否有玩家, 如果没有则在此坐标周围n距离内随机位置生成怪物
-	// 3. 如果存在玩家, 就在此位置往随机方向(不与上一个随机方向相同或相反(或者+90度))偏移n距离
-	// 4. 返回第2步, 每次生成失败时, n = n * 2, 如果失败5次就生成在第5次的位置
-
-	let $player = randomPlayer();
-	let $xy = $player.place;
-	let $forNum = 0;
-
-	// 以此坐标往上偏移$r
-	_shift();
-	function _shift(){
-		// 随机偏移
-		$xy[Math.round(Math.random())] += $r + 1;
-		// 检查是否在范围内
-		for(let key in $c.clients){
-			if(isOverlap($xy, $c.clients[key].place, $r)){
-				$r = $r + $r;
-				$forNum ++;
-				if($forNum < 5){
-					_shift();
-				}
-			}else{
-				return;
-			}
-		}
-	};
-
-	return [$xy, $player];
-};
-
-
 // 添加到网络队列
-function to_queue_net($entity_id, $name, $data){
+async function to_queue_net($entity_id, $name, $data){
 	// 如果为空则创建
 	if(typeof $t.queue_net[$entity_id] !== 'object'){
 		$t.queue_net[$entity_id] = {};
@@ -121,16 +87,11 @@ function to_queue_net($entity_id, $name, $data){
 function getSyncDataAll(){
 	let $arr = {
 		entity: {},
-		// index_entity: {
-		// 	type: {
-		// 		player: [],
-		// 		mob: [],
-		// 	}
-		// },
 	};
 	// 遍历服务器的实体
 	db.get({}, true).forEach((e) => {
-		if(e.type === 'player'){ // 玩家
+		// 玩家
+		if(e.type === 'player'){
 			$arr.entity[e.id] = {
 				// 基础数据
 				type: e.type,
@@ -139,10 +100,14 @@ function getSyncDataAll(){
 				place: e.place,
 			};
 		}else
-		if(e.type === 'npc'){ // npc
+
+		// npc
+		if(e.type === 'npc'){
 			$arr.entity[e.id] = e;
-		}
-		if(e.type === 'npc2'){ // npc-v2
+		}else
+
+		// npc-v2
+		if(e.type === 'npc2'){
 			$arr.entity[e.id] = {
 				// 基础数据
 				id: e.id,
@@ -153,6 +118,9 @@ function getSyncDataAll(){
 				// NPC程序
 				p_client: e?.p_client,
 				p_event: e?.p_event,
+
+				// NPC数据
+				data: e?.data,
 			};
 		}
 	});
@@ -232,11 +200,21 @@ function JSON_stringify_retainFunc($json){
 };
 
 
+// 判断两个实体(实体数据)是否重叠
+function isOverlap(p1, p2, d){
+	if(p1.place[0] + d > p2.place[0]
+	&& p2.place[0] + d > p1.place[0]
+	&& p1.place[1] + d > p2.place[1]
+	&& p2.place[1] + d > p1.place[1]
+	) return true; // 重叠
+	return false;
+};
+
+
 module.exports = {
 	uuid,
 	toJSON,
 	logoutClient,
-	randomCoordinate_playerOutside,
 	randomPlayer,
 	moveRectangleToCoordinate,
 	to_queue_net,
@@ -246,6 +224,7 @@ module.exports = {
 	is,
 	getIP,
 	JSON_stringify_retainFunc,
+	isOverlap,
 };
 
 
