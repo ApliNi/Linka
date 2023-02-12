@@ -1,6 +1,6 @@
 # Linka.JS
 
-![LinkaPEUI](https://cdn.ipacamod.cc/api/v3/file/get/8204/LinkaC%E7%A7%BB%E5%8A%A8%E7%AB%AF%E6%8C%89%E9%94%AE.png?sign=I2YsF73tlbZQkkQXJ6Ch9bHqHVqTT_cv9-oY_kVIskM%3D%3A0)
+![LinkaPEUI](https://ipacel.top/api/v3/file/get/8204/LinkaC%E7%A7%BB%E5%8A%A8%E7%AB%AF%E6%8C%89%E9%94%AE.png?sign=I2YsF73tlbZQkkQXJ6Ch9bHqHVqTT_cv9-oY_kVIskM%3D%3A0)
 
 **在线预览: [https://ipacel.cc/array/_1/](https://ipacel.cc/Array/_1/)**  
 
